@@ -104,8 +104,38 @@ of installed packages."
 
 ;;----------------------------------------------------------------------------
 
-(use-package diminish :ensure)
 (use-package bind-key :ensure) ;; A simple way to manage personal keybindings
+
+(use-package delight
+  ;; Enables customisation of mode names displayed in the mode line
+  ;;:disabled
+  :ensure
+  ;; :defer
+  :config
+  (delight
+   '(
+     ;; <mode symbol> <replacement> <library>
+     ;; (abbrev-mode " Abv" abbrev)
+     ;; (smart-tab-mode " \\t" smart-tab)
+     ;; (eldoc-mode nil "eldoc")
+     ;; (rainbow-mode)
+     ;; (overwrite-mode " Ov" t)
+     ;; (emacs-lisp-mode "Elisp" :major)
+     ))
+  
+  ;; (scheme-mode "λ")
+  ;; (help-mode "🄷")
+  ;; (isearch-mode " 🔎")
+  ;; (view-mode " 👀" 'view)
+  ;; (emacs-lisp-mode           "EL")
+  ;; (inferior-emacs-lisp-mode  "EL>")
+  ;; (calendar-mode             "📆")
+  ;; (visual-line-mode   " ↩")
+  ;; (auto-fill-function " ↵")
+  ;; (eldoc-mode         ""    eldoc)
+  ;; (whitespace-mode    " _"  whitespace)
+  ;; (paredit-mode       " ()" paredit)
+  )
 
 
 ;; my own custom key map which later is bound to my own minor mode
@@ -216,11 +246,13 @@ of installed packages."
 
 (setq inhibit-startup-message t)
 
+(setq next-error-recenter 5)
+
 ;; Use special markers to highlight grep matches.
 ;(setq grep-highlight-matches t)
 
-;(setq frame-title-format
-;      '("%S: " (buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+(setq frame-title-format
+      '("%S: " (buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 
 (use-package recentf
   ;; keep a list of recently opened files
@@ -282,10 +314,24 @@ of installed packages."
 
 (use-package elec-pair			; automatic bracket insertion by pairs
   :defer
-  :init
-  (add-hook 'emacs-lisp-mode-hook #'electric-pair-mode)
-  ;; :config
-  ;; (electric-pair-mode 1)
+  :init (add-hook 'emacs-lisp-mode-hook #'electric-pair-local-mode)
+  ;; :config (electric-pair-mode 1)
+  )
+
+(use-package smartparens-config
+  :ensure smartparens
+  ;;:delight smartparens-mode
+  :config
+  (message "CONFIG smartparens-config...")
+  (smartparens-global-mode 1)
+  ;; (show-smartparens-global-mode 1)
+  ;; (setq
+  ;;  smartparens-strict-mode nil
+  ;;  sp-autoinsert-if-followed-by-word nil
+  ;;  sp-autoskip-closing-pair 'always
+  ;;  sp-base-key-bindings 'paredit
+  ;;  sp-hybrid-kill-entire-symbol nil)
+  (message "...done")
   )
 
 (use-package savehist			; save minibuffer history
@@ -310,6 +356,21 @@ of installed packages."
 ;;(desktop-save-mode 1)
 
 ;;; ---------------------------------------------------------------------------
+
+(use-package default-text-scale
+  ;; Easily adjust the font size in all Emacs frames
+  :ensure
+  :bind (("C-M-=" . default-text-scale-increase)
+         ("C-M--" . default-text-scale-decrease)))
+
+(use-package iqa
+  ;; Init file (and directory) Quick Access
+  ;;   C-x M-f — iqa-find-user-init-file
+  ;;   C-x M-r — iqa-reload-user-init-file
+  ;;   C-x M-d — iqa-find-user-init-directory
+  :ensure
+  :config
+  (iqa-setup-default))
 
 (defun my/find-user-init-file ()
   "Open the user's init file."
@@ -619,6 +680,8 @@ See `sort-regexp-fields'."
 
 (display-time-mode t)
 
+(column-number-mode t) ; display column number in the mode line
+
 ;; Enable battery status display in mode line (Display Battery mode)
 ;; (setq battery-mode-line-format "[%b%p%% %t,%d°C]")
 ;; (display-battery-mode 1)
@@ -633,13 +696,15 @@ See `sort-regexp-fields'."
 
 (use-package eyebrowse ; a simple-minded way of managing window configuration
   :ensure
+  :disabled
   :config
   (eyebrowse-mode t))
 
 (use-package spaceline-config
   ;; Modeline configuration library for powerline
-  ;; :defer
   :ensure spaceline
+  :disabled
+  ;; :defer
   :config
   ;;(spaceline-spacemacs-theme)
   (spaceline-emacs-theme)
@@ -672,10 +737,12 @@ See `sort-regexp-fields'."
 ;;   :after spaceline
 ;;   :config (spaceline-all-the-icons-theme))
 
-(use-package newcomment
-  :bind (("s-/" . comment-or-uncomment-region))
-  :config
-  )
+;;;;;;;;;;;;;;;;;;;;;;;;; HERE
+;; (use-package newcomment
+;;   ;; (un)comment regions of buffers
+;;   :bind (("s-/" . comment-or-uncomment-region))
+;;   :config
+;;   )
 
 (use-package niceify-info
   ;; Improve styles and cross-references in Emacs Info buffers.
@@ -689,7 +756,13 @@ See `sort-regexp-fields'."
 (use-package magit
   ;; an interface to the version control system Git
   :ensure
-  :bind (("C-x g" . magit-status))
+  ;; :delight (magit-status-mode (propertize (concat " " [#xF1D3])
+  ;;                                         'face '(:family "FontAwesome"))
+  ;;                             :major)
+  :bind (("C-c g" . magit-status)            ; Display the main magit popup
+         ("C-c C-g" . magit-dispatch-popup)  ; Display keybinds for magit
+         ("C-c C-l" . magit-log-buffer-file) ; Show log for the blob or file visited in the current buffer
+         )
   :config
   )
 
@@ -709,16 +782,20 @@ See `sort-regexp-fields'."
 
 (use-package ivy ; Incremental Vertical completYon
   :ensure swiper
-  :bind (([f6] . ivy-resume)) ; resumes the latest ivy-based completion
+  :bind (("C-c C-r" . ivy-resume)) ; resumes the latest ivy-based completion
   :init (ivy-mode 1)
   :config
-  (setq ivy-use-virtual-buffers t
-        ivy-extra-directories nil
-        ivy-display-style 'fancy
-        ivy-height 20
-        ivy-count-format "(%d/%d) "
-        ivy-wrap t
-        ))
+  (setq
+   ivy-use-virtual-buffers t   ; add recent files and bookmarks
+   ivy-display-style 'fancy    ; style for formatting the minibuffer
+   ivy-height 16               ; number of lines for the minibuffer window
+   ivy-count-format "%d|%d "   ; style to use for displaying the current candidate count
+   ivy-wrap t                  ; wrap around after the first and the last candidate
+   ivy-extra-directories nil   ; remove ../ and ./ from file name completion
+   ivy-use-selectable-prompt t ; make the prompt line selectable like a candidate
+   ))
+
+;;;;;;;; avy ??????
 
 (use-package swiper ; isearch with an overview
   :ensure
@@ -726,8 +803,8 @@ See `sort-regexp-fields'."
          ([remap isearch-backward] . swiper)
          ([f3]                     . swiper))
   :config
-  ;; advise swiper to recenter display on exit
-  (advice-add 'swiper :after (lambda (&rest args) (recenter))))
+  (setq swiper-action-recenter t) ; recenter display after exiting ‘swiper’
+  )
 
 (use-package counsel ; various completion functions using Ivy
   :ensure
@@ -736,7 +813,7 @@ See `sort-regexp-fields'."
          ("C-x C-f" . counsel-find-file)
          ("C-h f"   . counsel-describe-function)
          ("C-h v"   . counsel-describe-variable)
-         ;; ("<f1> l"  . counsel-load-library)
+         ;; ("<f1> l"  . counsel-find-library)
          ;; ("<f2> i"  . counsel-info-lookup-symbol)
          ;; ("<f2> u"  . counsel-unicode-char)
          ;; ivy-based interface to shell and system tools
@@ -747,7 +824,8 @@ See `sort-regexp-fields'."
          ;; ("C-S-o"   . counsel-rhythmbox)
          )
   :config
-  (setq counsel-find-file-at-point t))
+  (setq counsel-find-file-at-point t) ; add file-at-point to the list of candidates
+  )
 
 (use-package ivy-rich
   ;; more friendly interface for ivy
@@ -779,18 +857,18 @@ See `sort-regexp-fields'."
 ;; source. Not all back-ends support this.
 
 (use-package company
-  ;; code completion framework; the name stands for “complete anything”
+  ;; Code completion framework. The name stands for “complete anything”
   :ensure
-  :diminish (company-mode . "C…")
+  ;;:delight (company-mode "C…")
   :bind ([(control .)] . company-complete)
   :demand
   :config
   (global-company-mode)
-  ;; (seqt company-idle-delay 0.3)           ; default: 0.5
-  ;; (setq company-minimum-prefix-length 3)  ; default: 3
-  ;; (setq company-echo-delay 0)             ; default: 0.01 ; remove annoying blinking
-  ;; (setq company-show-numbers t)           ; show numbers for easy selection
-  (setq company-tooltip-limit 20)            ; bigger popup window
+  (setq company-idle-delay 0.3)              ; idle delay in seconds until completion starts automatically ; default: 0.5
+  (setq company-echo-delay 0)                ; default: 0.01 ; remove annoying blinking
+  (setq company-minimum-prefix-length 1)     ; minimum prefix length for idle completion ; default: 3
+  (setq company-show-numbers t)              ; show numbers for easy selection
+  (setq company-tooltip-limit 20)            ; maximum number of candidates in the tooltip ; default: 10
   (setq company-tooltip-align-annotations t) ; align annotations to the right tooltip border
 
   ;; desired key bindings for: company-manual-begin
@@ -810,7 +888,7 @@ See `sort-regexp-fields'."
   (if (find-font (font-spec :name "Symbola"))
       (progn
         (message " found.")
-        (set-fontset-font t 'symbol (font-spec :name "Symbola" :size 16) frame 'preppend))
+        (set-fontset-font t 'symbol (font-spec :name "Symbola") frame 'preppend))
     (message " not found.")))
 
 ;; For when Emacs is started in GUI mode.
@@ -830,7 +908,6 @@ See `sort-regexp-fields'."
 ;;                                           (message "...........NOT FOUND."))) )
 
 
-
 (use-package company-emoji
   ;; company-mode backend providing autocompletion for emoji. :cool::sweat_drops:
   :ensure
@@ -848,14 +925,19 @@ See `sort-regexp-fields'."
 
 (use-package yasnippet
   ;; template system (Yet another snippet extension for Emacs)
-  ;; :disabled
   :ensure
-  ;; :diminish (yas-minor-mode . "Ⓨ")
-  :config
-  (yas-reload-all)
-  (add-hook 'prog-mode-hook #'yas-minor-mode))
+  :defer
+  ;; :delight (yas-minor-mode . "Ⓨ")
+  :init (add-hook 'prog-mode-hook #'yas-minor-mode)
+  :config (yas-reload-all))
 
 ;;; ---------------------------------------------------------------------------
+
+(use-package meson-mode
+  ;; major mode for the Meson build system
+  :ensure
+  :defer
+  :config (add-hook 'meson-mode-hook #'company-mode))
 
 (use-package flycheck
   ;; modern on-the-fly syntax checking
@@ -876,7 +958,13 @@ See `sort-regexp-fields'."
   ;; :after flycheck
   :defer
   :init (add-hook 'flycheck-mode-hook #'flycheck-pos-tip-mode)
-  :config (setq flycheck-pos-tip-timeout 10))
+  :config (setq flycheck-pos-tip-timeout 15))
+
+(use-package flycheck-inline
+  ;; Display flycheck error message with inline popup style
+  :ensure
+  :after flycheck
+  :config (flycheck-inline-enable))
 
 (use-package flycheck-status-emoji
   ;; adds cute emoji (e.g. 😱 for errors) to Flycheck’s mode line status
@@ -888,14 +976,16 @@ See `sort-regexp-fields'."
   ;; A C/C++/Objective-C minor mode powered by libclang
   :ensure
   :defer
-  ;; :diminish "👔"
+  ;; :delight "👔"
   
   :init
+  (message "INIT irony...")
   (add-hook 'c-mode-hook #'irony-mode)
   (add-hook 'c++-mode-hook #'irony-mode)
   (add-hook 'objc-mode-hook #'irony-mode)
   
   :config
+  (message "CONFIGURE irony...")
   (add-hook 'irony-mode-hook #'electric-pair-mode)
   (add-hook 'irony-mode-hook #'flycheck-mode)
   (add-hook 'irony-mode-hook #'irony-cdb-autosetup-compile-options)
@@ -906,35 +996,30 @@ See `sort-regexp-fields'."
 
 (use-package company-irony
   :ensure
-  :defer
-  :init
-  (eval-after-load 'company
-    '(add-to-list 'company-backends 'company-irony))
-  (eval-after-load 'irony
-    '(add-hook 'irony-mode-hook #'company-irony-setup-begin-commands)))
+  :after (irony company)
+  :config
+  (add-to-list 'company-backends 'company-irony)
+  (add-hook 'irony-mode-hook #'company-irony-setup-begin-commands))
 
 (use-package company-irony-c-headers
   ;; a company-mode backend for C/C++ header files that works with irony-mode
   :ensure
-  :defer
-  :init
-  (eval-after-load 'company
-    '(add-to-list 'company-backends '(company-irony-c-headers company-irony))))
+  :after company-irony
+  :config
+  (add-to-list 'company-backends 'company-irony-c-headers))
 
 (use-package flycheck-irony
   :ensure
   :defer
-  :after flycheck
+  :after (irony flycheck)
   :config
-  (eval-after-load 'flycheck
-    '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
+  (add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
 
 (use-package irony-eldoc
   :ensure
-  :defer
-  :init
-  (eval-after-load 'irony
-    '(add-hook 'irony-mode-hook #'irony-eldoc)))
+  :after irony
+  :config
+  (add-hook 'irony-mode-hook #'irony-eldoc))
 
 (use-package flycheck-clang-analyzer
   :ensure
@@ -1429,13 +1514,13 @@ See `sort-regexp-fields'."
 ;;   :init (add-hook 'rust-mode-hook #'racer-mode)
 ;;   :config
 ;;   (validate-setq racer-rust-src-path (getenv "RUST_SRC_PATH"))
-;;   :diminish (racer-mode . "ⓡ"))
+;;   :delight (racer-mode . "ⓡ"))
 
 ;; (use-package cargo ; Control Cargo
 ;;   :ensure
 ;;   :bind (:map rust-mode-map ("<f5>" . cargo-process-build))
 ;;   :init (add-hook 'rust-mode-hook #'cargo-minor-mode)
-;;   :diminish cargo-minor-mode)
+;;   :delight cargo-minor-mode)
 
 ;; (use-package toml-mode ; Toml for Cargo files
 ;;   :ensure
@@ -1543,13 +1628,12 @@ See `sort-regexp-fields'."
 (use-package flycheck-ocaml
   ;; OCaml support for Flycheck using Merlin
   :ensure
-  :defer
-  :init
-  (with-eval-after-load 'merlin
-    ;; Disable Merlin's own error checking
-    (setq merlin-error-after-save nil)
-    ;; Enable Flycheck checker
-    (flycheck-ocaml-setup)))
+  :after merlin
+  :config
+  ;; Disable Merlin's own error checking
+  (setq merlin-error-after-save nil)
+  ;; Enable Flycheck checker
+  (flycheck-ocaml-setup))
 
 ;;;----------------------------------------------------------------------------
 
@@ -1729,23 +1813,27 @@ See `sort-regexp-fields'."
 (use-package anti-zenburn-theme             :ensure :defer) ;      light
 (use-package apropospriate-theme            :ensure :defer) ; dark light
 (use-package aurora-theme                   :ensure :defer) ; dark
+(use-package avk-emacs-themes               :ensure :defer) ; dark light
 (use-package badwolf-theme                  :ensure :defer) ; dark
-(use-package color-theme-sanityinc-tomorrow :ensure       ) ; dark light
 (use-package challenger-deep-theme          :ensure :defer) ; dark
+(use-package color-theme-sanityinc-tomorrow :ensure       ) ; dark light
 (use-package danneskjold-theme              :ensure :defer) ; dark
 (use-package dark-mint-theme                :ensure :defer) ; dark
 (use-package eink-theme                     :ensure :defer) ;      light
+(use-package exotica-theme                  :ensure :defer) ; dark
 (use-package faff-theme                     :ensure :defer) ;      light
 (use-package flatui-dark-theme              :ensure :defer) ; dark
 (use-package forest-blue-theme              :ensure :defer) ; dark
-(use-package goose-theme                    :ensure :defer) ; light
 (use-package github-modern-theme            :ensure :defer) ; light
+(use-package goose-theme                    :ensure :defer) ; light
+(use-package grayscale-theme                :ensure :defer) ; dark
 (use-package gruvbox-theme                  :ensure :defer) ; dark
 (use-package hamburg-theme                  :ensure :defer) ; dark
 (use-package idea-darkula-theme             :ensure :defer) ; dark
 (use-package intellij-theme                 :ensure :defer) ;      light
 (use-package jbeans-theme                   :ensure :defer) ; dark
 (use-package kooten-theme                   :ensure :defer) ; dark
+(use-package kaolin-themes                  :ensure :defer) ; dark light
 (use-package labburn-theme                  :ensure :defer) ; dark
 (use-package liso-theme                     :ensure :defer) ; dark
 (use-package majapahit-theme                :ensure :defer) ; dark light
@@ -1758,8 +1846,10 @@ See `sort-regexp-fields'."
 (use-package planet-theme                   :ensure :defer) ; dark
 (use-package reykjavik-theme                :ensure :defer) ; dark
 (use-package silkworm-theme                 :ensure :defer) ;      light
+(use-package snazzy-theme                   :ensure :defer) ; dark
 (use-package spacemacs-theme                :ensure :defer) ; dark
 (use-package sublime-themes                 :ensure :defer)
+(use-package sunburn-theme                  :ensure :defer) ; dark
 (use-package suscolors-theme                :ensure :defer) ; dark
 (use-package tao-theme                      :ensure :defer) ; 
 (use-package toxi-theme                     :ensure :defer) ; dark
@@ -2348,6 +2438,21 @@ See `sort-regexp-fields'."
   (add-hook 'latex-mode-hook #'turn-on-orgtbl)
   )
 
+(use-package epresent
+  ;; Simple presentation mode for Emacs Org-mode
+  :ensure
+  :defer)
+
+(use-package org-tree-slide
+  ;; A presentation tool for org-mode based on the visibility of outline trees 
+  :ensure
+  :defer
+  :config
+  (define-key org-mode-map (kbd "<f8>") 'org-tree-slide-mode)
+  (define-key org-mode-map (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+  (org-tree-slide-simple-profile)
+  )
+
 ;;;----------------------------------------------------------------------------
 
 (use-package conf-mode
@@ -2391,7 +2496,8 @@ See `sort-regexp-fields'."
   :ensure
   :defer
   :config
-  (setq markdown-command "pandoc") )
+  (setq markdown-command "pandoc")
+  (add-hook 'markdown-mode-hook #'turn-on-orgtbl))
 
 (use-package polymode
   ;; Versatile multiple modes with extensive literate programming support
@@ -2430,9 +2536,6 @@ See `sort-regexp-fields'."
             (s))))
 
   (define-polymode poly-noweb+auto-mode pm-poly/noweb+auto)
-
-  :config
-  (add-hook 'markdown-mode-hook #'turn-on-orgtbl)
   )
 
 ;;; ---------------------------------------------------------------------------
@@ -2467,20 +2570,18 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 (use-package fringe-current-line ; indicate current line on the fringe.
   :ensure
-  :config
-  (global-fringe-current-line-mode 1))
+  :config (global-fringe-current-line-mode 1))
 
 ;;;----------------------------------------------------------------------------
 
 (use-package neotree ; A tree plugin like NerdTree for Vim
   :ensure
   :bind ([(shift f3)] . neotree-toggle)
-  :config
-  (setq neo-cwd-line-style 'button) ; 'text, 'button
-  (setq neo-dont-be-alone t)
-  (setq neo-show-hidden-files t)
-  (setq neo-smart-open t)
-  (setq neo-theme 'nerd) ; 'classic, 'nerd, 'ascii, 'arrow
+  :custom
+  (neo-cwd-line-style 'button) ; 'text, 'button
+  (neo-show-hidden-files t)
+  (neo-smart-open t)
+  (neo-theme (if (display-graphic-p) 'icons 'arrow)) ; 'classic, 'nerd, 'ascii, 'arrow, 'icons
   )
 
 (use-package popwin ; Popup Window Manager
@@ -2490,6 +2591,11 @@ XLFD defaults to the selected frame's font, or the default face's font."
   ;; (setq display-buffer-function 'popwin:display-buffer)
   ;; (global-set-key (kbd "C-z") popwin:keymap)
   )
+
+(use-package shackle ; Set rules for popup buffers
+  :ensure
+  :custom (shackle-rules '((grep-mode :frame t)))
+  :config (shackle-mode 1))
 
 ;;;----------------------------------------------------------------------------
 
@@ -2555,14 +2661,23 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :ensure
   :config (mode-icons-mode))
 
+(use-package smart-backspace ; intellj like backspace
+  :ensure
+  :bind (([?\C-?] . smart-backspace)) )
+
 (use-package sudo-edit ; utilities for opening files with sudo
   :ensure)
 
 (use-package dired-sort-menu
   :ensure
   :after dired
-  :config
-  )
+  :config)
+
+(use-package diredfl
+  ;; extra font lock rules for a more colourful dired
+  :ensure
+  :defer
+  :init (add-hook 'dired-mode-hook #'diredfl-mode))
 
 
 
