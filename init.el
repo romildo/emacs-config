@@ -80,6 +80,7 @@ of installed packages."
   (setq package-enable-at-startup nil)
   (setq package-check-signature (when (executable-find "gpg") 'allow-unsigned))
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
   (package-initialize)
   ;; (package-initialize 'no-activate)
   (my/ensure-packages-installed 'use-package))
