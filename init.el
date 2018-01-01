@@ -185,7 +185,7 @@ of installed packages."
 (setq cua-keep-region-after-copy t) ;; Standard Windows behaviour
 
 ;; By default both fringes have width 8 pixels, but we can easily adjust this:
-(fringe-mode nil) ; default: 8 pixels
+;; (fringe-mode nil) ; restore default: 8 pixels
 
 (use-package misc ; some nonstandard editing and utility commands
   :bind ([remap zap-to-char] . zap-up-to-char)) ; M-z
