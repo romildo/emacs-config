@@ -19,6 +19,9 @@ recentf
 # abbrev
 abbrev_defs
 
+# desktop files
+.emacs.desktop
+
 # saveplace
 places
 
