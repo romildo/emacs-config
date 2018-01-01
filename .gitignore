@@ -10,5 +10,14 @@
 # Undo-tree save-files
 *.~undo-tree
 
+# History
+history
+
+# recentf
+recentf
+
+# saveplace
+places
+
 # elpa packages
 elpa
