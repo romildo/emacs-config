@@ -943,35 +943,33 @@ See `sort-regexp-fields'."
 (use-package flycheck
   ;; modern on-the-fly syntax checking
   :ensure
-  :config
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
-  (add-hook 'after-init-hook #'global-flycheck-mode))
+  :custom (flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+  :hook (after-init . global-flycheck-mode))
 
-(use-package flycheck-color-mode-line
-  ;; colors the mode line according to the Flycheck status
-  :ensure
-  :after flycheck
-  :config (add-hook 'flycheck-mode-hook #'flycheck-color-mode-line-mode))
+;; (use-package flycheck-color-mode-line
+;;   ;; colors the mode line according to the Flycheck status
+;;   :ensure
+;;   :after flycheck
+;;   :hook (flycheck-mode . flycheck-color-mode-line-mode))
 
-(use-package flycheck-pos-tip
-  ;; shows flycheck error messages in a graphical popup
-  :ensure
-  ;; :after flycheck
-  :defer
-  :init (add-hook 'flycheck-mode-hook #'flycheck-pos-tip-mode)
-  :config (setq flycheck-pos-tip-timeout 15))
+;; (use-package flycheck-pos-tip
+;;   ;; shows flycheck error messages in a graphical popup
+;;   :ensure
+;;   :after flycheck
+;;   :hook (flycheck-mode . flycheck-pos-tip-mode)
+;;   :custom (flycheck-pos-tip-timeout 15))
 
-(use-package flycheck-inline
-  ;; Display flycheck error message with inline popup style
-  :ensure
-  :after flycheck
-  :config (flycheck-inline-enable))
+;; (use-package flycheck-inline
+;;   ;; Display flycheck error message with inline popup style
+;;   :ensure
+;;   :after flycheck
+;;   :hook (flycheck-mode . flycheck-inline-enable))
 
 (use-package flycheck-status-emoji
   ;; adds cute emoji (e.g. 😱 for errors) to Flycheck’s mode line status
   :ensure
   :after flycheck
-  :config (add-hook 'flycheck-mode-hook #'flycheck-status-emoji-mode))
+  :hook (flycheck-mode . flycheck-status-emoji-mode))
 
 (use-package irony
   ;; A C/C++/Objective-C minor mode powered by libclang
