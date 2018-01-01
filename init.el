@@ -1268,6 +1268,16 @@ See `sort-regexp-fields'."
   :defer
   :custom (haskell-process-log t))
 
+(use-package dante
+  :ensure
+  :after haskell-mode
+  :hook ((haskell-mode . dante-mode)
+         (haskell-mode . flycheck-mode)
+         (dante-mode . (lambda ()
+                         (flycheck-add-next-checker
+                          'haskell-dante
+                          '(warning . haskell-hlint))))))
+
 ;;; ---------------------------------------------------------------------
 
 (use-package clean-mode
