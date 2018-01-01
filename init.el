@@ -1601,7 +1601,6 @@ See `sort-regexp-fields'."
 (use-package alect-themes                   :ensure :defer) ; dark light
 (use-package anti-zenburn-theme             :ensure :defer) ;      light
 (use-package apropospriate-theme            :ensure :defer) ; dark light
-(use-package aurora-theme                   :ensure :defer) ; dark
 (use-package avk-emacs-themes               :ensure :defer) ; dark light
 (use-package badwolf-theme                  :ensure :defer) ; dark
 (use-package challenger-deep-theme          :ensure :defer) ; dark
