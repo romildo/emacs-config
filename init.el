@@ -2374,7 +2374,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 (use-package shackle ; Set rules for popup buffers
   :ensure
-  :custom (shackle-rules '((grep-mode :frame t)))
+  :custom (shackle-rules '((grep-mode :select t)))
   :config (shackle-mode 1))
 
 ;;;----------------------------------------------------------------------------
