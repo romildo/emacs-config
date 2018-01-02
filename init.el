@@ -2442,8 +2442,11 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :ensure
   :bind (([?\C-?] . smart-backspace)) )
 
-(use-package sudo-edit ; utilities for opening files with sudo
-  :ensure)
+(use-package sudo-edit
+  ;; Utilities for opening files with sudo
+  :ensure
+  :defer
+  :bind (("C-c f s" . sudo-edit)))
 
 (use-package dired-sort-menu
   :ensure
