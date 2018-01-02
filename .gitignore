@@ -25,5 +25,8 @@ abbrev_defs
 # saveplace
 places
 
+# tramp
+tramp
+
 # elpa packages
 elpa
