@@ -106,6 +106,8 @@ static char *note[] = {
  '(evil-visual-state-cursor (quote ("#66BB6A" box)))
  '(fci-rule-character-color "#452E2E")
  '(fci-rule-color "#202325")
+ '(flycheck-disabled-checkers (quote (emacs-lisp-checkdoc)))
+ '(flycheck-pos-tip-timeout 15)
  '(gnus-logo-colors (quote ("#1ec1c4" "#bababa")) t)
  '(gnus-mode-line-image-cache
    (quote
@@ -130,6 +132,7 @@ static char *gnus-pointer[] = {
 \"###....####.######\",
 \"###..######.######\",
 \"###########.######\" };")) t)
+ '(haskell-process-log t t)
  '(highlight-changes-colors (quote ("#d33682" "#6c71c4")))
  '(highlight-indent-guides-auto-enabled nil)
  '(highlight-symbol-colors

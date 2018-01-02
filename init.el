@@ -952,12 +952,12 @@ See `sort-regexp-fields'."
 ;;   :after flycheck
 ;;   :hook (flycheck-mode . flycheck-color-mode-line-mode))
 
-;; (use-package flycheck-pos-tip
-;;   ;; shows flycheck error messages in a graphical popup
-;;   :ensure
-;;   :after flycheck
-;;   :hook (flycheck-mode . flycheck-pos-tip-mode)
-;;   :custom (flycheck-pos-tip-timeout 15))
+(use-package flycheck-pos-tip
+  ;; shows flycheck error messages in a graphical popup
+  :ensure
+  :after flycheck
+  :custom (flycheck-pos-tip-timeout 15)
+  :config (flycheck-pos-tip-mode))
 
 ;; (use-package flycheck-inline
 ;;   ;; Display flycheck error message with inline popup style
@@ -1011,14 +1011,12 @@ See `sort-regexp-fields'."
   :ensure
   :defer
   :after (irony flycheck)
-  :config
-  (add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+  :hook (flycheck-mode . flycheck-irony-setup))
 
 (use-package irony-eldoc
   :ensure
   :after irony
-  :config
-  (add-hook 'irony-mode-hook #'irony-eldoc))
+  :hook (irony-mode . irony-eldoc))
 
 (use-package flycheck-clang-analyzer
   :ensure
@@ -1032,20 +1030,17 @@ See `sort-regexp-fields'."
 (use-package cmake-font-lock
   :ensure
   :defer
-  :init
-  (add-hook 'cmake-mode-hook #'cmake-font-lock-activate))
+  :hook (cmake-mode . cmake-font-lock-activate))
 
 (use-package cmake-ide
   :ensure
   :defer
   :bind (("<f9>" . cmake-ide-compile))
-  :init (add-hook 'c-mode-common-hook
-                  (lambda ()
-                    (cmake-ide-setup)
-                    (setq cmake-ide-build-pool-use-persistent-naming t)
-                    (when (cmake-ide--locate-project-dir)
-                      (setq cmake-ide-build-dir (concat (cmake-ide--locate-project-dir) "build_")))))
-  :config (message "cmake-ide starting"))
+  :hook (c-mode-common . (lambda ()
+                           (cmake-ide-setup)
+                           (setq cmake-ide-build-pool-use-persistent-naming t)
+                           (when (cmake-ide--locate-project-dir)
+                             (setq cmake-ide-build-dir (concat (cmake-ide--locate-project-dir) "build_"))))))
 
 (use-package cmake-project
   :disabled ; seems to be unmaintained
@@ -1295,7 +1290,7 @@ See `sort-regexp-fields'."
 ;;   :ensure
 ;;   :defer
 ;;   :after rust-mode
-;;   :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+;;   :hook (flycheck-mode-hook . flycheck-rust-setup))
 
 ;; (use-package racer                      ; Completion and navigation for Rust
 ;;   :ensure
@@ -1417,7 +1412,7 @@ See `sort-regexp-fields'."
 (use-package flycheck-ocaml
   ;; OCaml support for Flycheck using Merlin
   :ensure
-  :after merlin
+  :after (flycheck merlin)
   :config
   ;; Disable Merlin's own error checking
   (setq merlin-error-after-save nil)
