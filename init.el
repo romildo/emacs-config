@@ -862,9 +862,12 @@ See `sort-regexp-fields'."
   :ensure
   ;;:delight (company-mode "C…")
   :bind ([(control .)] . company-complete)
-  :demand
+  ;;:demand
+  :hook (after-init . global-company-mode)
+  :init
+  (message "COMPANY INIT ...")
   :config
-  (global-company-mode)
+  (message "COMPANY CONFIG ...")
   (setq company-idle-delay 0.3)              ; idle delay in seconds until completion starts automatically ; default: 0.5
   (setq company-echo-delay 0)                ; default: 0.01 ; remove annoying blinking
   (setq company-minimum-prefix-length 1)     ; minimum prefix length for idle completion ; default: 3
@@ -913,8 +916,7 @@ See `sort-regexp-fields'."
   ;; company-mode backend providing autocompletion for emoji. :cool::sweat_drops:
   :ensure
   :after company
-  :config
-  (add-to-list 'company-backends 'company-emoji))
+  :config (add-to-list 'company-backends 'company-emoji))
 
 ;; (use-package emoji-fontset
 ;;   :ensure t
@@ -938,7 +940,7 @@ See `sort-regexp-fields'."
   ;; major mode for the Meson build system
   :ensure
   :defer
-  :config (add-hook 'meson-mode-hook #'company-mode))
+  :hook (meson-mode . company-mode))
 
 (use-package flycheck
   ;; modern on-the-fly syntax checking
@@ -996,16 +998,14 @@ See `sort-regexp-fields'."
 (use-package company-irony
   :ensure
   :after (irony company)
-  :config
-  (add-to-list 'company-backends 'company-irony)
-  (add-hook 'irony-mode-hook #'company-irony-setup-begin-commands))
+  :hook (irony-mode . company-irony-setup-begin-commands)
+  :config (add-to-list 'company-backends 'company-irony))
 
 (use-package company-irony-c-headers
   ;; a company-mode backend for C/C++ header files that works with irony-mode
   :ensure
   :after company-irony
-  :config
-  (add-to-list 'company-backends 'company-irony-c-headers))
+  :config (add-to-list 'company-backends 'company-irony-c-headers))
 
 (use-package flycheck-irony
   :ensure
@@ -1116,8 +1116,7 @@ See `sort-regexp-fields'."
   :ensure
   :defer
   :after company
-  :init
-  (add-hook 'TeX-mode-hook #'company-auctex-init))
+  :hook (TeX-mode-hook . company-auctex-init))
 
 (use-package company-math
   :ensure
@@ -1222,16 +1221,13 @@ See `sort-regexp-fields'."
 (use-package company-emacs-eclim
   :disabled
   :ensure emacs-eclim
-  :after eclim
-  :requires company
-  :config
-  (company-emacs-eclim-setup))
+  :after (eclim company)
+  :config (company-emacs-eclim-setup))
 
 ;; (use-package meghanada ; Java IDE
 ;;   :ensure t
 ;;   :commands meghanada-mode
-;;   :init
-;;   (add-hook 'java-mode-hook 'meghanada-mode)
+;;   :hook (java-mode-hook . meghanada-mode)
 ;;   ;; :config
 ;;   ;; (setq meghanada-use-company t
 ;;   ;;       meghanada-use-flycheck t
@@ -1384,6 +1380,7 @@ See `sort-regexp-fields'."
 (use-package merlin
   :ensure
   :defer
+  :after company
   :init
   (message "INIT merlin")
   ;; start merlin on ocaml files
@@ -1392,8 +1389,7 @@ See `sort-regexp-fields'."
   :config
   (message "CONFIG merlin")
   ;; make company aware of merlin
-  (with-eval-after-load 'company
-    (add-to-list 'company-backends 'merlin-company-backend)))
+  (add-to-list 'company-backends 'merlin-company-backend))
 
 ;; Some useful key bindings:
 ;;   C-c C-x    merlin-next-error
@@ -1536,9 +1532,8 @@ See `sort-regexp-fields'."
 (use-package company-web-html
   ;; alternative autocompletion in html-mode, web-mode, jade-mode, slim-mode
   :ensure company-web
-  :after company
-  :config (add-to-list 'company-backends 'company-web-html)
-  )
+  :after (company web-mode)
+  :config (add-to-list 'company-backends 'company-web-html))
 
 ;;; ---------------------------------------------------------------------------
 ;;; Mutt support
@@ -1938,11 +1933,9 @@ See `sort-regexp-fields'."
 
 (use-package company-nixos-options
   :ensure
-  :after company
-  :config
-  (add-hook 'nix-mode-hook
-            (lambda ()
-              (add-to-list 'company-backends 'company-nixos-options))))
+  :after (company nix-mode)
+  :hook (nix-mode . (lambda ()
+                      (add-to-list 'company-backends 'company-nixos-options))))
 
 ;;;----------------------------------------------------------------------------
 ;;; tabbar
