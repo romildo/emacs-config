@@ -2434,8 +2434,9 @@ XLFD defaults to the selected frame's font, or the default face's font."
 (use-package rpm-spec-mode :ensure :defer)
 
 (use-package mode-icons
+  ;; Show icons instead of mode names
   :ensure
-  :config (mode-icons-mode))
+  :hook (after-init . mode-icons-mode))
 
 (use-package smart-backspace ; intellj like backspace
   :ensure
