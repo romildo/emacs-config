@@ -793,6 +793,7 @@ See `sort-regexp-fields'."
 ;;; ---------------------------------------------------------------------------
 
 (use-package imenu-list
+  ;; Update and show the imenu-list buffer.
   :ensure
   :defer
   :bind ("C-'" . imenu-list-smart-toggle)
