@@ -1183,9 +1183,9 @@ See `sort-regexp-fields'."
 ;;
 
 (use-package hideshow
-  :defer
-  :init
-  (add-hook 'prog-mode-hook #'hs-minor-mode))
+  ;; selectively display code/comment blocks
+  :bind (:map hs-minor-mode-map ("C-c \\" . hs-toggle-hiding))
+  :hook (prog-mode . hs-minor-mode))
 
 ;; Narrowing
 ;;
