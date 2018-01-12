@@ -2493,6 +2493,11 @@ XLFD defaults to the selected frame's font, or the default face's font."
 (use-package debian-changelog-mode
   :ensure)
 
+(use-package string-inflection
+  ;; underscore -> UPCASE -> CamelCase conversion of names
+  :ensure
+  :bind (("C-c i" . string-inflection-all-cycle)))
+
 ;;;----------------------------------------------------------------------------
 
 (define-minor-mode my/global-mode
