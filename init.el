@@ -767,6 +767,29 @@ See `sort-regexp-fields'."
   :config
   )
 
+(use-package git-gutter-fringe
+  ;; Shows git additions/deletions/edits on the fringe
+  :ensure
+  :if window-system
+  :bind (("C-x g g"   . git-gutter)
+         ("C-x g n"   . git-gutter:next-hunk)
+         ("C-x g p"   . git-gutter:previous-hunk)
+         ("C-x g s"   . git-gutter:stage-hunk)
+         ("C-x g v"   . git-gutter:revert-hunk)
+         ("C-x g TAB" . git-gutter:popup-hunk)
+         ("C-x g SPC" . git-gutter:mark-hunk))
+  :config
+  (global-git-gutter-mode t)
+  (fringe-helper-define 'git-gutter-fr:modified nil
+    "........"
+    "...XX..."
+    "..XXXX.."
+    ".XXXXXX."
+    ".XXXXXX."
+    "..XXXX.."
+    "...XX..."
+    "........"))
+
 ;;; ---------------------------------------------------------------------------
 
 (use-package imenu-list
