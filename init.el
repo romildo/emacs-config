@@ -1641,6 +1641,7 @@ See `sort-regexp-fields'."
 (use-package avk-emacs-themes               :ensure :defer) ; dark light
 (use-package badwolf-theme                  :ensure :defer) ; dark
 (use-package challenger-deep-theme          :ensure :defer) ; dark
+(use-package chyla-theme                    :ensure :defer) ;      light
 (use-package color-theme-sanityinc-tomorrow :ensure       ) ; dark light
 (use-package danneskjold-theme              :ensure :defer) ; dark
 (use-package dark-mint-theme                :ensure :defer) ; dark
@@ -1666,8 +1667,10 @@ See `sort-regexp-fields'."
 (use-package moe-theme                      :ensure :defer) ; dark light
 (use-package molokai-theme                  :ensure :defer) ; dark
 (use-package nimbus-theme                   :ensure :defer) ; dark
+(use-package nord-theme                     :ensure :defer) ; dark
 (use-package nubox                          :ensure :defer) ; dark light tty
 (use-package organic-green-theme            :ensure :defer) ;      light
+(use-package panda-theme                    :ensure :defer) ; dark
 (use-package planet-theme                   :ensure :defer) ; dark
 (use-package reykjavik-theme                :ensure :defer) ; dark
 (use-package silkworm-theme                 :ensure :defer) ;      light
