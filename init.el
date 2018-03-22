@@ -1278,12 +1278,35 @@ See `sort-regexp-fields'."
 ;;; ---------------------------------------------------------------------
 
 (use-package haskell-mode
+  ;; a Haskell editing mode
   :ensure
   :defer
-  :custom (haskell-process-log t))
+  :bind (:map haskell-mode-map
+              ;; ("F8" . haskell-navigate-imports)
+         ;;      ("C-c m i s" . haskell-sort-imports)
+         ;;      ("C-c m i a" . haskell-align-imports)
+         ;;      ("C-c C-c" . haskell-compile)
+         ;; :map haskell-cabal-mode-map
+         ;;      ("C-c C-c" . haskell-compile)
+         ;; ;; Recommended Haskell Mode bindings, see
+         ;; ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html
+         )
+  :hook ((haskell-mode . flycheck-mode)
+         (haskell-mode . interactive-haskell-mode)
+         (haskell-mode . (lambda ()
+                           ;; completion support: in order to provide candidates for
+                           ;; identifiers defined locally in let and where blocks combine
+                           ;; completion candidates from completion-at-point function
+                           ;; (company-capf backend) and dynamic abbrevs
+                           (set (make-local-variable 'company-backends)
+                                (append '((company-capf company-dabbrev-code))
+                                        company-backends)))))
+  :config (setq haskell-process-log t))
 
 (use-package dante
+  ;; development mode for Haskell
   :ensure
+  :disabled
   :after haskell-mode
   :hook ((haskell-mode . dante-mode)
          (haskell-mode . flycheck-mode)
