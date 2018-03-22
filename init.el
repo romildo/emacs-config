@@ -679,27 +679,14 @@ See `sort-regexp-fields'."
        "")))
   )
 
-(display-time-mode t)
+(display-time-mode t) ; display time, load level, and mail flag in mode lines
 
-(column-number-mode t) ; display column number in the mode line
+(column-number-mode t) ; display column number in mode lines
 
-;; Enable battery status display in mode line (Display Battery mode)
+;; (size-indication-mode t) ; display buffer size in mode lines
+
+;; (display-battery-mode 1) ; display battery status in mode lines
 ;; (setq battery-mode-line-format "[%b%p%% %t,%d°C]")
-;; (display-battery-mode 1)
-
-(use-package uniquify ; make buffer names unique
-  :config
-  (setq uniquify-buffer-name-style 'post-forward)
-  (setq uniquify-ignore-buffers-re "^\\*")
-  (setq uniquify-strip-common-sufix nil) )
-
-;;(require 'dircolors nil 'noerror)
-
-(use-package eyebrowse ; a simple-minded way of managing window configuration
-  :ensure
-  :disabled
-  :config
-  (eyebrowse-mode t))
 
 (use-package spaceline-config
   ;; Modeline configuration library for powerline
@@ -737,6 +724,20 @@ See `sort-regexp-fields'."
 ;;   :ensure
 ;;   :after spaceline
 ;;   :config (spaceline-all-the-icons-theme))
+
+(use-package uniquify ; make buffer names unique
+  :config
+  (setq uniquify-buffer-name-style 'post-forward)
+  (setq uniquify-ignore-buffers-re "^\\*")
+  (setq uniquify-strip-common-sufix nil) )
+
+;;(require 'dircolors nil 'noerror)
+
+(use-package eyebrowse ; a simple-minded way of managing window configuration
+  :ensure
+  :disabled
+  :config
+  (eyebrowse-mode t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; HERE
 ;; (use-package newcomment
