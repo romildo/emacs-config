@@ -2479,6 +2479,12 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 ;;;----------------------------------------------------------------------------
 
+(use-package define-word
+  ;; Display the definition of word at point
+  :ensure
+  :bind ("C-c d" . define-word-at-point)
+        ("C-c D" . define-word))
+
 (use-package clean-buffers :ensure)
 
 (use-package rpm-spec-mode :ensure :defer)
