@@ -2615,5 +2615,14 @@ XLFD defaults to the selected frame's font, or the default face's font."
             (message "init completed in %.2fms"
                      (jrm/time-subtract-millis after-init-time before-init-time))))
 
+;; Use a hook so the message doesn't get clobbered by other messages.
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "Emacs ready in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+
 (provide 'init)
 ;;; init.el ends here
