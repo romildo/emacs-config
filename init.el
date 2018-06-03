@@ -726,6 +726,22 @@ See `sort-regexp-fields'."
 ;;   :after spaceline
 ;;   :config (spaceline-all-the-icons-theme))
 
+(use-package telephone-line
+  ;; A new implementation of Powerline for Emacs
+  :ensure
+  :disabled
+  :config
+  (setq telephone-line-lhs
+        '((accent . (telephone-line-vc-segment
+                     telephone-line-erc-modified-channels-segment
+                     telephone-line-process-segment))
+          (nil    . (telephone-line-minor-mode-segment
+                     telephone-line-buffer-segment))))
+  (setq telephone-line-rhs
+        '((nil    . (telephone-line-misc-info-segment))
+          (accent . (telephone-line-major-mode-segment))))
+  (telephone-line-mode t))
+
 (use-package uniquify ; make buffer names unique
   :config
   (setq uniquify-buffer-name-style 'post-forward)
