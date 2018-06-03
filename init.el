@@ -1141,6 +1141,7 @@ See `sort-regexp-fields'."
 (use-package tex-site
   :ensure auctex
   :defer
+  :hook (LaTeX-mode-hook . (lambda () (message "HERE...") (local-unset-key "\"")))
   ;; :config
   ;; (setq-default TeX-master nil) ; Query for master file.
   )
