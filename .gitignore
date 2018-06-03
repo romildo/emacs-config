@@ -30,3 +30,6 @@ tramp
 
 # elpa packages
 elpa
+
+# miscelanea
+irony/
