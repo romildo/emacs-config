@@ -1647,6 +1647,7 @@ See `sort-regexp-fields'."
 (use-package color-theme-sanityinc-tomorrow :ensure       ) ; dark light
 (use-package danneskjold-theme              :ensure :defer) ; dark
 (use-package dark-mint-theme                :ensure :defer) ; dark
+(use-package doneburn-theme                 :ensure :defer) ; light
 (use-package eink-theme                     :ensure :defer) ;      light
 (use-package exotica-theme                  :ensure :defer) ; dark
 (use-package faff-theme                     :ensure :defer) ;      light
@@ -1671,13 +1672,16 @@ See `sort-regexp-fields'."
 (use-package nimbus-theme                   :ensure :defer) ; dark
 (use-package nord-theme                     :ensure :defer) ; dark
 (use-package nubox                          :ensure :defer) ; dark light tty
+(use-package one-themes                     :ensure :defer) ; dark light
 (use-package organic-green-theme            :ensure :defer) ;      light
 (use-package panda-theme                    :ensure :defer) ; dark
 (use-package planet-theme                   :ensure :defer) ; dark
 (use-package reykjavik-theme                :ensure :defer) ; dark
+(use-package seoul256-theme                 :ensure :defer) ; dark light
 (use-package silkworm-theme                 :ensure :defer) ;      light
 (use-package snazzy-theme                   :ensure :defer) ; dark
 (use-package spacemacs-theme                :ensure :defer) ; dark
+(use-package srcery-theme                   :ensure :defer) ; dark
 (use-package sublime-themes                 :ensure :defer)
 (use-package sunburn-theme                  :ensure :defer) ; dark
 (use-package suscolors-theme                :ensure :defer) ; dark
@@ -1687,12 +1691,21 @@ See `sort-regexp-fields'."
 (use-package zenburn-theme                  :ensure :defer) ; dark
 (use-package zerodark-theme                 :ensure :defer) ; dark
 
+(use-package doom-themes
+  :ensure
+  :defer
+  :config
+  (message "CONFIG doom-themes")
+  (doom-themes-visual-bell-config) ; enable flashing the mode-line on error
+  (doom-themes-neotree-config) ; enable custom neotree theme (all-the-icons fonts must be installed!)
+  (doom-themes-org-config) ; corrects (and improves) org-mode's native fontification
+  )
+
 (use-package solarized-theme
   :ensure
   :defer
-  ;; :commands (solarized)
   :init
-  (message "INITING SOLARIZED-THEME")
+  (message "INIT solarized-theme")
   (defun solarized ()
     (interactive)
     (load-theme
@@ -1700,6 +1713,8 @@ See `sort-regexp-fields'."
          'solarized-dark
        'solarized-light)
      t))
+  :config
+  (message "CONFIG solarized-theme")
   (setq solarized-distinct-fringe-background t)
   (setq solarized-high-contrast-mode-line t)  
   (setq solarized-use-more-italic t)
