@@ -2025,6 +2025,11 @@ See `sort-regexp-fields'."
   :hook (nix-mode . (lambda ()
                       (add-to-list 'company-backends 'company-nixos-options))))
 
+(use-package nix-update
+  ;; Update "fetch" blocks in .nix expressions
+  :ensure
+  :after nix-mode)
+
 ;;;----------------------------------------------------------------------------
 ;;; tabbar
 
