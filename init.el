@@ -921,6 +921,10 @@ See `sort-regexp-fields'."
   ;; company-complete-common company-complete company-select-next
   )
 
+;; (use-package company-box
+;;   :ensure
+;;   :hook (company-mode . company-box-mode))
+
 ;; (when (member "Symbola" (font-family-list))
 ;;   (message "Symbola font found.")
 ;;   ;; Missing Glyphs
