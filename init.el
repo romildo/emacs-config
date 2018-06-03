@@ -321,6 +321,7 @@ of installed packages."
 
 (use-package smartparens-config
   :ensure smartparens
+  :disabled ; REMOVE LATER
   ;;:delight smartparens-mode
   :config
   (message "CONFIG smartparens-config...")
