@@ -1767,6 +1767,7 @@ See `sort-regexp-fields'."
 (use-package exotica-theme                  :ensure :defer) ; dark
 (use-package faff-theme                     :ensure :defer) ;      light
 (use-package flatui-dark-theme              :ensure :defer) ; dark
+(use-package flucui-themes                  :ensure :defer) ; dark light
 (use-package forest-blue-theme              :ensure :defer) ; dark
 (use-package github-modern-theme            :ensure :defer) ; light
 (use-package goose-theme                    :ensure :defer) ; light
