@@ -1459,6 +1459,11 @@ See `sort-regexp-fields'."
   :ensure
   :defer)
 
+;; (use-package company-go
+;;   :ensure
+;;   :after (company go-mode)
+;;   :config (add-to-list 'company-backends 'company-go))
+
 (use-package prolog
   :mode (("\\.pl$" . prolog-mode)
          ("\\.m$" . mercury-mode))
