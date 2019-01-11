@@ -796,6 +796,12 @@ See `sort-regexp-fields'."
           (accent . (telephone-line-major-mode-segment))))
   (telephone-line-mode t))
 
+(use-package doom-modeline
+  ;; A minimal and modern mode-line
+  :ensure
+  :disabled
+  :defer
+  :hook (after-init . doom-modeline-init))
 (use-package uniquify ; make buffer names unique
   :config
   (setq uniquify-buffer-name-style 'post-forward)
