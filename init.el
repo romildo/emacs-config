@@ -2582,6 +2582,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
         ps-print-header           t
         ps-show-n-of-n            t
         ps-lpr-command            (expand-file-name "bin/print-preview.sh" user-emacs-directory)
+        ps-build-face-reference   t
         )
 
   (defun ps-spool-to-pdf (beg end &rest ignore)
