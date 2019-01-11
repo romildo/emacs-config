@@ -260,7 +260,9 @@ of installed packages."
 
 (setq inhibit-startup-message t)
 
-(setq next-error-recenter 5)
+(setq next-error-highlight t)
+(setq next-error-highlight-no-select t)
+(setq next-error-recenter -2)
 
 ;; Use special markers to highlight grep matches.
 ;(setq grep-highlight-matches t)
