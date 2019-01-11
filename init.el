@@ -1814,10 +1814,11 @@ See `sort-regexp-fields'."
   :ensure
   :defer
   :config
-  (message "CONFIG doom-themes")
+  (message "CONFIG doom-themes...")
   (doom-themes-visual-bell-config) ; enable flashing the mode-line on error
   (doom-themes-neotree-config) ; enable custom neotree theme (all-the-icons fonts must be installed!)
   (doom-themes-org-config) ; corrects (and improves) org-mode's native fontification
+  (message "CONFIG doom-themes... done")
   )
 
 (use-package solarized-theme
