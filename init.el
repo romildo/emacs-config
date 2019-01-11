@@ -1793,6 +1793,7 @@ See `sort-regexp-fields'."
 (use-package organic-green-theme            :ensure :defer) ;      light
 (use-package panda-theme                    :ensure :defer) ; dark
 (use-package planet-theme                   :ensure :defer) ; dark
+(use-package purp-theme                     :ensure :defer) ; 
 (use-package reykjavik-theme                :ensure :defer) ; dark
 (use-package seoul256-theme                 :ensure :defer) ; dark light
 (use-package silkworm-theme                 :ensure :defer) ;      light
