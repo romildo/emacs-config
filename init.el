@@ -2595,6 +2595,14 @@ XLFD defaults to the selected frame's font, or the default face's font."
   ;; (setq ps-print-region-function 'ps-spool-to-pdf)
   )
 
+
+;; (use-package printing
+;;   :defer
+;;   :config
+;;   (pr-update-menus t))
+
+
+
 ;;;----------------------------------------------------------------------------
 
 (use-package define-word
