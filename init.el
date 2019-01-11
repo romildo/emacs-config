@@ -1464,6 +1464,13 @@ See `sort-regexp-fields'."
 ;;   :after (company go-mode)
 ;;   :config (add-to-list 'company-backends 'company-go))
 
+;; (use-package go-eldoc
+;;   :ensure
+;;   :after go-mode
+;;   :hook (go-mode-hook . go-eldoc-setup))
+
+;;; ---------------------------------------------------------------------
+
 (use-package prolog
   :mode (("\\.pl$" . prolog-mode)
          ("\\.m$" . mercury-mode))
