@@ -823,7 +823,7 @@ See `sort-regexp-fields'."
   :config
   (setq uniquify-buffer-name-style 'post-forward)
   (setq uniquify-ignore-buffers-re "^\\*")
-  (setq uniquify-strip-common-sufix nil) )
+  (setq uniquify-strip-common-suffix nil))
 
 ;;(require 'dircolors nil 'noerror)
 
