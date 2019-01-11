@@ -32,4 +32,9 @@ tramp
 elpa
 
 # miscelanea
-irony/
+/irony/
+/network-security.data
+/srecode-map.el
+/games/tetris-scores
+/url/cookies
+/session.*
