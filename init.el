@@ -1777,8 +1777,9 @@ See `sort-regexp-fields'."
 (use-package idea-darkula-theme             :ensure :defer) ; dark
 (use-package intellij-theme                 :ensure :defer) ;      light
 (use-package jbeans-theme                   :ensure :defer) ; dark
-(use-package kooten-theme                   :ensure :defer) ; dark
 (use-package kaolin-themes                  :ensure :defer) ; dark light
+(use-package kooten-theme                   :ensure :defer) ; dark
+(use-package lab-themes                     :ensure :defer) ; dark light
 (use-package labburn-theme                  :ensure :defer) ; dark
 (use-package liso-theme                     :ensure :defer) ; dark
 (use-package majapahit-theme                :ensure :defer) ; dark light
