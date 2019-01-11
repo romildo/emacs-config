@@ -854,11 +854,13 @@ See `sort-regexp-fields'."
   ;; :delight (magit-status-mode (propertize (concat " " [#xF1D3])
   ;;                                         'face '(:family "FontAwesome"))
   ;;                             :major)
-  :bind (("C-c g" . magit-status)            ; Display the main magit popup
-         ("C-c C-g" . magit-dispatch-popup)  ; Display keybinds for magit
-         ("C-c C-l" . magit-log-buffer-file) ; Show log for the blob or file visited in the current buffer
-         )
+  :bind
+  (("C-c g" . magit-status)            ; Display the main magit popup
+   ("C-c C-g" . magit-dispatch-popup)  ; Display keybinds for magit
+   ("C-c C-l" . magit-log-buffer-file) ; Show log for the blob or file visited in the current buffer
+   )
   :config
+  (setq magit-diff-refine-hunk 'all) ; Show fine differences for all displayed diff hunks
   )
 
 (use-package git-gutter-fringe
