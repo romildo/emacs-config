@@ -1807,6 +1807,7 @@ See `sort-regexp-fields'."
 (use-package toxi-theme                     :ensure :defer) ; dark
 (use-package yoshi-theme                    :ensure :defer) ; dark
 (use-package zenburn-theme                  :ensure :defer) ; dark
+(use-package zeno-theme                     :ensure :defer) ; dark
 (use-package zerodark-theme                 :ensure :defer) ; dark
 
 (use-package doom-themes
