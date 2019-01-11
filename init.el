@@ -2471,44 +2471,15 @@ See `sort-regexp-fields'."
   (setq markdown-command "pandoc")
   (add-hook 'markdown-mode-hook #'turn-on-orgtbl))
 
-(use-package polymode
-  ;; Versatile multiple modes with extensive literate programming support
-  :ensure
-  :mode (("\\.md" . poly-markdown-mode)
-         ;; ("\\.nw" . poly-noweb-mode)
-         ("\\.nw" . poly-noweb+auto-mode))
-  :init
-  (defcustom pm-poly/noweb+auto
-    (pm-polymode-multi-auto "noweb+auto"
-                            :hostmode 'pm-host/latex
-                            :auto-innermode 'pm-inner/noweb+auto
-                            :exporters '(pm-exporter/latexmk pm-exporter/pdflatex)
-                            :map '(("<" . poly-noweb-electric-<)))
-    "Noweb+auto typical configuration"
-    :group 'polymodes
-    :type 'object)
 
-  (defcustom  pm-inner/noweb+auto
-    (pm-hbtchunkmode-auto "noweb+auto"
-                          :head-reg "<<\\(.*\\)>>="
-                          :tail-reg "\\(@ +%def .*\\)$\\|\\(@[ \n]\\)"
-                          ;; :retriever-regexp "<<.*\\.\\(.*\\)>>="
-                          :retriever-function 'my/retriever-function
-                          )
-    "Noweb+auto typical chunk."
-    :group 'innermodes
-    :type 'object)
+;; (use-package poly-markdown
+;;   :ensure)
 
-  (defun my/retriever-function ()
-    (re-search-forward "<<.*[.:]\\(.*\\)>>=")
-    (let ((s (match-string-no-properties 1)))
-      ;; (message "EXTENSION: %s\n" s)
-      (cond ((member s '("c++" "cpp" "cc" "C" "h++" "hpp" "hh" "H")) "c++")
-            ((member s '("ml" "mli")) "tuareg")
-            (s))))
+;; (use-package poly-noweb
+;;   :ensure)
 
-  (define-polymode poly-noweb+auto-mode pm-poly/noweb+auto)
-  )
+;; (use-package poly-org
+;;   :ensure)
 
 ;;; ---------------------------------------------------------------------------
 
