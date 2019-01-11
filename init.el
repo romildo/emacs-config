@@ -2520,11 +2520,11 @@ XLFD defaults to the selected frame's font, or the default face's font."
 (use-package neotree ; A tree plugin like NerdTree for Vim
   :ensure
   :bind ([(shift f3)] . neotree-toggle)
-  :custom
-  (neo-cwd-line-style 'button) ; 'text, 'button
-  (neo-show-hidden-files t)
-  (neo-smart-open t)
-  (neo-theme (if (display-graphic-p) 'icons 'arrow)) ; 'classic, 'nerd, 'ascii, 'arrow, 'icons
+  :config
+  (setq neo-cwd-line-style 'button) ; 'text, 'button
+  (setq neo-show-hidden-files t)
+  (setq neo-smart-open t)
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow)) ; 'classic, 'nerd, 'ascii, 'arrow, 'icons
   )
 
 (use-package popwin ; Popup Window Manager
