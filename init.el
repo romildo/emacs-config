@@ -1756,6 +1756,7 @@ See `sort-regexp-fields'."
 (use-package apropospriate-theme            :ensure :defer) ; dark light
 (use-package avk-emacs-themes               :ensure :defer) ; dark light
 (use-package badwolf-theme                  :ensure :defer) ; dark
+(use-package brutalist-theme                :ensure :defer) ;      light
 (use-package challenger-deep-theme          :ensure :defer) ; dark
 (use-package chyla-theme                    :ensure :defer) ;      light
 (use-package color-theme-sanityinc-tomorrow :ensure       ) ; dark light
