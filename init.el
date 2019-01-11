@@ -2617,6 +2617,15 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 (use-package rpm-spec-mode :ensure :defer)
 
+(use-package pkgbuild-mode :ensure :defer)
+
+(use-package dpkg-dev-el
+  :ensure
+  :defer
+  :mode ("/debian/control\\'" . debian-control-mode))
+
+(use-package debian-changelog-mode :ensure)
+
 (use-package mode-icons
   ;; Show icons instead of mode names
   :ensure
@@ -2649,9 +2658,6 @@ XLFD defaults to the selected frame's font, or the default face's font."
 ;; C-x C-q		dired-toggle-read-only
 ;; C-c C-c		wdired-finish-edit
 
-
-(use-package debian-changelog-mode
-  :ensure)
 
 (use-package string-inflection
   ;; underscore -> UPCASE -> CamelCase conversion of names
