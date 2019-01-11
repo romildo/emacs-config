@@ -948,18 +948,17 @@ See `sort-regexp-fields'."
   (setq counsel-find-file-at-point t) ; add file-at-point to the list of candidates
   )
 
-(use-package ivy-rich
-  ;; more friendly interface for ivy
-  :ensure
-  :after ivy
-  :config
-  (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
-  ;; align the virtual buffers
-  (setq ivy-virtual-abbreviate 'full)
-  (setq ivy-rich-switch-buffer-align-virtual-buffer t)
-  ;; abbreviate paths using abbreviate-file-name (e.g. replace “/home/username” with “~”)
-  (setq ivy-rich-abbreviate-paths t)
-  )
+;; (use-package ivy-rich
+;;   ;; more friendly interface for ivy
+;;   :ensure
+;;   :after ivy
+;;   :config
+;;   (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+;;   ;; align the virtual buffers
+;;   (setq ivy-virtual-abbreviate 'full)
+;;   (setq ivy-rich-switch-buffer-align-virtual-buffer t)
+;;   (setq ivy-rich-path-style 'abbrev)
+;;   )
 
 ;;; ---------------------------------------------------------------------------
 ;;; company-mode: Modular in-buffer completion framework for Emacs
