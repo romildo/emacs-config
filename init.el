@@ -802,6 +802,14 @@ See `sort-regexp-fields'."
   :disabled
   :defer
   :hook (after-init . doom-modeline-init))
+
+(use-package smart-mode-line
+  ;; A powerful and beautiful mode-line for Emacs
+  :ensure
+  :defer
+  :config
+  ;; (setq sml/theme 'respectful)
+  ;; (sml/setup))
 (use-package uniquify ; make buffer names unique
   :config
   (setq uniquify-buffer-name-style 'post-forward)
