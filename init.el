@@ -747,10 +747,10 @@ See `sort-regexp-fields'."
   ;; Modeline configuration library for powerline
   :ensure spaceline
   :disabled
-  ;; :defer
+  :defer
   :config
-  ;;(spaceline-spacemacs-theme)
-  (spaceline-emacs-theme)
+  (spaceline-spacemacs-theme)
+  ;;(spaceline-emacs-theme)
   
   ;; (setq spaceline-workspace-numbers-unicode t)
   ;; (setq spaceline-window-numbers-unicode t)
