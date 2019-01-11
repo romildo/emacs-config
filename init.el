@@ -2114,6 +2114,7 @@ See `sort-regexp-fields'."
 (use-package nix-mode
   :ensure
   :defer
+  :mode ("\\.nix\\'" "\\.nix.in\\'")
   ;; :init
   ;; (add-hook 'nix-mode-hook (lambda () (smartscan-mode 1)))
   )
