@@ -810,6 +810,16 @@ See `sort-regexp-fields'."
   :config
   ;; (setq sml/theme 'respectful)
   ;; (sml/setup))
+
+(use-package smart-mode-line-atom-one-dark-theme
+  ;; An atom-one-dark theme for smart-mode-line
+  :ensure
+  :after smart-mode-line
+  :config
+  (setq sml/theme 'atom-one-dark)
+  (sml/setup))
+  )
+
 (use-package uniquify ; make buffer names unique
   :config
   (setq uniquify-buffer-name-style 'post-forward)
