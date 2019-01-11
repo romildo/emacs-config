@@ -844,8 +844,7 @@ See `sort-regexp-fields'."
   ;; Improve styles and cross-references in Emacs Info buffers.
   :ensure
   :defer
-  :init (add-hook 'Info-selection-hook #'niceify-info)
-  )
+  :hook (Info-selection . niceify-info))
 
 ;;; ---------------------------------------------------------------------------
 
