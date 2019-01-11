@@ -1455,6 +1455,10 @@ See `sort-regexp-fields'."
 
 ;;; ---------------------------------------------------------------------
 
+(use-package go-mode
+  :ensure
+  :defer)
+
 (use-package prolog
   :mode (("\\.pl$" . prolog-mode)
          ("\\.m$" . mercury-mode))
