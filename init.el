@@ -2433,7 +2433,10 @@ See `sort-regexp-fields'."
 
 (use-package adoc-mode
   :ensure
-  :mode ("\\.adoc\\'" . adoc-mode)
+  :mode ("\\.adoc\\'" "\\.asciidoc\\'")
+  :hook
+  (adoc-mode . visual-line-mode)
+  ;; (adoc-mode . variable-pitch-mode)
   )
 
 (use-package dokuwiki-mode
