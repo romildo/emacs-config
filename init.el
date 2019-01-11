@@ -348,8 +348,7 @@ of installed packages."
   ;;  sp-autoskip-closing-pair 'always
   ;;  sp-base-key-bindings 'paredit
   ;;  sp-hybrid-kill-entire-symbol nil)
-  (message "...done")
-  )
+  (message "...done"))
 
 (use-package savehist			; save minibuffer history
   :config
