@@ -105,6 +105,19 @@ of installed packages."
 
 ;;----------------------------------------------------------------------------
 
+(use-package paradox
+  ;; modernizing Emacs' Package Menu
+  :defer 1
+  :config
+  (paradox-enable)
+  (setq paradox-column-width-package 27)
+  (setq paradox-column-width-version 13)
+  (setq paradox-execute-asynchronously t)
+  (setq paradox-hide-wiki-packages t)
+  (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
+
+;;----------------------------------------------------------------------------
+
 (use-package bind-key :ensure) ;; A simple way to manage personal keybindings
 
 (use-package delight
