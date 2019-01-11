@@ -2664,6 +2664,13 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :ensure
   :bind (("C-c i" . string-inflection-all-cycle)))
 
+
+;; Support ligatures from PragmataPro font in Emacs
+;; https://github.com/fabrizioschiavi/pragmatapro
+(load "pragmatapro-prettify-symbols-v0.827")
+(add-hook 'prog-mode-hook #'add-pragmatapro-prettify-symbols-alist)
+(global-prettify-symbols-mode +1)
+
 ;;;----------------------------------------------------------------------------
 
 (define-minor-mode my/global-mode
