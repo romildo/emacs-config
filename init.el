@@ -1876,6 +1876,7 @@ See `sort-regexp-fields'."
     (interactive)
     (theme-looper--disable-all-themes))
   ;; preferred theme: distinguished
+  (theme-looper-set-favorite-themes-regexp "doom")
   (theme-looper-enable-random-theme)
   )
 
