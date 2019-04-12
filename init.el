@@ -866,7 +866,8 @@ See `sort-regexp-fields'."
    ("C-c C-l" . magit-log-buffer-file) ; Show log for the blob or file visited in the current buffer
    )
   :config
-  (setq magit-diff-refine-hunk 'all) ; Show fine differences for all displayed diff hunks
+  (setq magit-diff-refine-hunk 'all)    ; Show fine differences for all displayed diff hunks
+  (setq magit-log-section-commit-count 52) ; How many recent commits to show in certain log sections
   )
 
 (use-package git-gutter-fringe
