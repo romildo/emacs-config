@@ -2659,6 +2659,10 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :after dired
   :config)
 
+(use-package all-the-icons-dired
+  :ensure
+  :after dired)
+
 (use-package diredfl
   ;; extra font lock rules for a more colourful dired
   :ensure
