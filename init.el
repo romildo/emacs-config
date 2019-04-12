@@ -796,11 +796,17 @@ See `sort-regexp-fields'."
   (telephone-line-mode t))
 
 (use-package doom-modeline
-  ;; A minimal and modern mode-line
+  ;; A minimal and modern mode-line. Requires the fonts included with
+  ;; all-the-icons to be installed. Strongly recommend to use
+  ;; doom-themes at the same time.
   :ensure
-  :disabled
-  :defer
-  :hook (after-init . doom-modeline-init))
+  :hook (after-init . doom-modeline-mode)
+  :config
+  ;; (setq doom-modeline-buffer-file-name-style 'file-name)
+  (setq doom-modeline-height 24)
+  ;; (setq doom-modeline-bar-width 6)
+  (setq doom-modeline-minor-modes t)
+  )
 
 (use-package smart-mode-line
   ;; A powerful and beautiful mode-line for Emacs
