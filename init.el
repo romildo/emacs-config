@@ -2549,6 +2549,10 @@ XLFD defaults to the selected frame's font, or the default face's font."
   ;;:custom (shackle-rules '((grep-mode :select t)))
   :config (shackle-mode 1))
 
+(use-package bnf-mode
+  :ensure
+  :defer)
+
 ;;;----------------------------------------------------------------------------
 
 (use-package slime
