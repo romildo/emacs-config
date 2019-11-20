@@ -204,53 +204,99 @@ of installed packages."
 ;; Some basic preferences
 ;;----------------------------------------------------------------------------
 
-(setq-default blink-cursor-interval 0.4) ; length of cursor blink interval in seconds.
-(setq-default bookmark-default-file (expand-file-name ".bookmarks.el" user-emacs-directory))
-(setq-default buffers-menu-max-size 30) ; maximum number of entries on the Buffers menu.
-(setq-default mouse-yank-at-point t)
-(setq-default set-mark-command-repeat-pop t) ; repeating C-SPC after popping mark pops it again
-(setq-default truncate-partial-width-windows nil)
-(setq-default scroll-preserve-screen-position 'always)
+(use-package emacs
+  ;; These were defined in C code, so use a pseudo-package to set them
 
-(setq initial-scratch-message nil)
-(setq inhibit-startup-screen t)
-(setq inhibit-startup-echo-area-message "romildo")
-(setq visible-bell t) ; try to flash the frame to represent a bell
-(setq load-prefer-newer t) ; `load' prefers the newest version of a file
+  :init
+  ;; Enable some disabled commands. They are disabled by default
+  ;; because new users often find them confusing.
+  (put 'downcase-region 'disabled nil)
+  (put 'upcase-region 'disabled nil)
+  (put 'narrow-to-region 'disabled nil) ;; Restrict editing to the current region
 
+  :custom
+  (hscroll-step 1 "How many columns to scroll the window when point gets too close to the edge")
+  ;; (enable-recursive-minibuffers t "Allow minibuffer commands while in the minibuffer")
+  (indent-tabs-mode nil "Indentation cannot insert tabs")
+  (truncate-partial-width-windows nil)
+  (scroll-preserve-screen-position 'always)
+  (visible-bell t "try to flash the frame to represent a bell")
+  (load-prefer-newer t "`load' prefers the newest version of a file")
+  (truncate-lines nil "do not truncate long lines instead of line wrapping them")
 
-;; Do not truncate long lines instead of line wrapping them.
-(setq-default truncate-lines nil)
+  ;; How many columns away from the window edge point is allowed to get
+  ;; before automatic hscrolling will horizontally scroll the window.
+  (hscroll-margin 1)
 
-;; How many columns to scroll the window when point gets too close to
-;; the edge.
-(setq hscroll-step 1)
+  ;; http://www.emacswiki.org/cgi-bin/wiki?SmoothScrolling
+  (scroll-conservatively 10000)
 
-;; How many columns away from the window edge point is allowed to get
-;; before automatic hscrolling will horizontally scroll the window.
-(setq hscroll-margin 1)
+  ;; (show-trailing-whitespace t "highlight trailing whitespace")
 
-(setq apropos-do-all t)
+  ;; Visually indicate empty lines after the buffer end.
+  ;; If non-nil, a bitmap is displayed in the left fringe of a window on
+  ;; window-systems.
+  (indicate-empty-lines t)
 
-;; delete the selection instead of inserting at point
-(delete-selection-mode)
+  (frame-title-format
+   '("%S: " (buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+  )
 
-;; Common User Access style editing (CUA mode)
-;; (cua-mode)
-(setq cua-auto-tabify-rectangles nil) ;; Don't tabify after rectangle commands
-(setq cua-keep-region-after-copy t) ;; Standard Windows behaviour
+(use-package frame
+  ;; Disable suspending the current frame on C-z
+  :custom
+  (blink-cursor-interval 0.4 "length of cursor blink interval in seconds")
+  
+  :bind ("C-z" . nil))
 
-;; By default both fringes have width 8 pixels, but we can easily adjust this:
-;; (fringe-mode nil) ; restore default: 8 pixels
+(use-package mouse
+  :custom
+  (mouse-yank-at-point t))
+
+(use-package bookmark
+  :custom
+  (bookmark-default-file (expand-file-name ".bookmarks.el" user-emacs-directory)))
+
+(use-package bookmark
+  :custom
+  (initial-scratch-message nil)
+  (inhibit-startup-echo-area-message "romildo"))
+
+(use-package apropos
+  :custom
+  (apropos-do-all t))
+
+(use-package delsel
+  :config
+  ;; delete the selection instead of inserting at point
+  (delete-selection-mode))
+
+(use-package cua-base
+  ;; Common User Access style editing (CUA mode)
+  :config
+  ;; (cua-mode)
+  :custom
+  (cua-auto-tabify-rectangles nil "Don't tabify after rectangle commands")
+  (cua-keep-region-after-copy t "Standard Windows behaviour"))
+
+(use-package fringe
+  ;; By default both fringes have width 8 pixels, but we can easily adjust this.
+  :disabled
+  :config
+  (fringe-mode nil) ; restore default: 8 pixels
+  )
 
 (use-package misc ; some nonstandard editing and utility commands
   :bind ([remap zap-to-char] . zap-up-to-char)) ; M-z
 
-;; http://www.emacswiki.org/cgi-bin/wiki?SmoothScrolling
-(setq scroll-conservatively 10000)
+(use-package tool-bar
+  ;; Disables the toolbar
+  :config (tool-bar-mode -1))
 
-;; Disables the toolbar
-(tool-bar-mode -1)
+(use-package menu-bar
+  :custom (buffers-menu-max-size 30 "maximum number of entries on the Buffers menu")
+  :config (menu-bar-mode -1)
+  :bind ([S-f10] . menu-bar-mode))
 
 (use-package font-lock
   :config
@@ -270,16 +316,23 @@ of installed packages."
   
   ;; (global-visual-line-mode 1)
 
-  ;; Line motion by logical lines based on buffer contents alone
-  (setq line-move-visual nil)
+  :custom
+  (line-move-visual nil "Line motion by logical lines based on buffer contents alone")
 
   ;; Save clipboard strings into kill ring before replacing them.
-  ;; When one selects something in another program to paste it into Emacs,
-  ;; but kills something in Emacs before actually pasting it,
-  ;; this selection is gone unless this variable is non-nil,
-  ;; in which case the other program's selection is saved in the `kill-ring'
+  ;; When one selects something in another program to paste it into
+  ;; Emacs, but kills something in Emacs before actually pasting it,
+  ;; this selection is gone unless this variable is non-nil, in which
+  ;; case the other program's selection is saved in the `kill-ring'
   ;; before the Emacs kill and one can still paste it using C-y M-y.
-  ;;(setq save-interprogram-paste-before-kill t)
+  (save-interprogram-paste-before-kill t "Save existing clipboard text into kill ring before replacing it")
+
+  (set-mark-command-repeat-pop t "repeating C-SPC after popping mark pops it again")
+
+  ;; highlight the locus indefinitely until some other locus replaces it
+  (next-error-highlight t)
+  (next-error-highlight-no-select t)
+  (next-error-recenter -2)
   )
 
 (use-package linum
@@ -295,29 +348,28 @@ of installed packages."
                       :slant 'oblique))
 
 
-;; Toggle line highlighting in all buffers
-;; (global-hl-line-mode 1)
+(use-package hl-line
+  ;; Toggle line highlighting in all buffers
+  :disabled
+  :config
+  (global-hl-line-mode 1))
 
-;; Always end a file with a newline
-(setq require-final-newline t)
+(use-package files
+  :custom
+  (require-final-newline t "Always end a file with a newline"))
 
-(setq inhibit-startup-message t)
+(use-package "startup"
+  :custom
+  (inhibit-startup-screen t "Don't show splash screen"))
 
-(setq next-error-highlight t)
-(setq next-error-highlight-no-select t)
-(setq next-error-recenter -2)
-
-;; Use special markers to highlight grep matches.
-;(setq grep-highlight-matches t)
-
-(setq frame-title-format
-      '("%S: " (buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+;; (use-package grep
+;;   :custom
+;;   (grep-highlight-matches t "Use special markers to highlight grep matches"))
 
 (use-package recentf
   ;; keep a list of recently opened files
   :if (not noninteractive)
-  :init
-  (recentf-mode 1))
+  :init (recentf-mode 1))
 
 (use-package saveplace
   ;; Automatically save place in files, so that visiting them later
@@ -343,18 +395,6 @@ of installed packages."
   :ensure
   :config
   (smart-newline-mode 1))
-
-;; Indentation can insert tabs if this is non-nil.
-(setq-default indent-tabs-mode nil)
-
-
-;; Non-nil means highlight trailing whitespace.
-;; (setq-default show-trailing-whitespace t)
-
-;; Visually indicate empty lines after the buffer end.
-;; If non-nil, a bitmap is displayed in the left fringe of a window on
-;; window-systems.
-(setq-default indicate-empty-lines t)
 
 (use-package whitespace
   ;; Minor mode to visualize whitepsaces (TAB, (HARD) SPACE and NEWLINE)
@@ -398,23 +438,48 @@ of installed packages."
   (setq history-length 1000)
   (savehist-mode 1))
 
-;; Enable some disabled commands. They are disabled by default because
-;; new users often find them confusing.
-(put 'downcase-region 'disabled nil)
-(put 'upcase-region 'disabled nil)
-;;(put 'narrow-to-region 'disabled nil)
+(use-package mb-depth
+  ;; Indicate minibuffer depth
+  :disabled
+  :config
+  ;; Any recursive use of the minibuffer will show the recursion depth
+  ;; in the minibuffer prompt
+  (minibuffer-depth-indicate-mode))
 
-(add-hook 'before-save-hook #'time-stamp)
+(use-package time-stamp
+  :hook before-save)
 
-;; Enable Desktop Save mode
-;;
-;; Emacs will save the desktop when it exits (this may prompt you; see
-;; the option ‘desktop-save’).  The next time Emacs starts, if this
-;; mode is active it will restore the desktop.
-;; 
-;;(desktop-save-mode 1)
+(use-package desktop
+  :disabled
+  :config
+  ;; Enable Desktop Save mode
+  ;;
+  ;; Emacs will save the desktop when it exits (this may prompt you; see
+  ;; the option ‘desktop-save’).  The next time Emacs starts, if this
+  ;; mode is active it will restore the desktop.
+  ;; 
+  ;;(desktop-save-mode 1)
+  )
+
+(use-package "window"
+  :custom
+  (split-height-threshold 160 "minimum height for splitting windows sensibly")
+  (split-width-threshold 80 "minimum width for splitting windows sensibly")
+  )
+
+(use-package re-builder
+  :defer
+  ;; :bind (("C-c R" . re-builder))
+  :custom
+  (reb-re-syntax 'string "syntax for REs in the RE Builder: read, string or rx"))
 
 ;;; ---------------------------------------------------------------------------
+
+(use-package goto-last-point
+  ;; Record and jump to the last point in the buffer
+  :ensure
+  :bind ("C-<" . goto-last-point)
+  :config (goto-last-point-mode))
 
 (use-package default-text-scale
   ;; Easily adjust the font size in all Emacs frames
@@ -596,9 +661,8 @@ modified."
 (use-package rainbow-delimiters
   ;; Highlight nested parentheses, brackets, and braces according to their depth.
   :ensure
-  :defer
-  :init
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  :diminish
+  :hook ((prod-mode . rainbow-delimiters-mode)))
 
 (use-package evil-search-highlight-persist
   ;; Persistent highlights after search
@@ -681,6 +745,8 @@ modified."
 
 
 ;; www.emacswiki.org/emacs/SortWords
+;; (Tip: use C-u C-x = to display the category of the character under the cursor.)
+
 (defun sort-words (reverse beg end)
   "Sort words in region alphabetically, in REVERSE if negative.
 Prefixed with negative \\[universal-argument], sorts in reverse.
@@ -692,6 +758,11 @@ See `sort-regexp-fields'."
   (interactive "*P\nr")
   (sort-regexp-fields reverse "\\w+" "\\&" beg end))
 
+(defun sort-symbols (reverse beg end)
+  "Sort symbols in region alphabetically, in REVERSE if negative.
+See `sort-words'."
+  (interactive "*P\nr")
+  (sort-regexp-fields reverse "\\(\\sw\\|\\s_\\)+" "\\&" beg end))
 
 
 
@@ -843,13 +914,14 @@ See `sort-regexp-fields'."
   ;; all-the-icons to be installed. Strongly recommend to use
   ;; doom-themes at the same time.
   :ensure
-  :hook (after-init . doom-modeline-mode)
-  :config
-  ;; (setq doom-modeline-buffer-file-name-style 'file-name)
-  (setq doom-modeline-height 24)
-  ;; (setq doom-modeline-bar-width 6)
-  (setq doom-modeline-minor-modes t)
-  )
+  :disabled
+  :hook
+  (after-init . doom-modeline-mode)
+  :custom
+  ;; (doom-modeline-buffer-file-name-style 'file-name)
+  (doom-modeline-height 24)
+  ;; (doom-modeline-bar-width 6)
+  (doom-modeline-minor-modes t))
 
 (use-package smart-mode-line
   ;; A powerful and beautiful mode-line for Emacs
@@ -869,10 +941,10 @@ See `sort-regexp-fields'."
   )
 
 (use-package uniquify ; make buffer names unique
-  :config
-  (setq uniquify-buffer-name-style 'post-forward)
-  (setq uniquify-ignore-buffers-re "^\\*")
-  (setq uniquify-strip-common-suffix nil))
+  :custom
+  (uniquify-buffer-name-style 'post-forward)
+  (uniquify-ignore-buffers-re "^\\*")
+  (uniquify-strip-common-suffix nil))
 
 ;;(require 'dircolors nil 'noerror)
 
@@ -911,6 +983,7 @@ See `sort-regexp-fields'."
   :config
   (setq magit-diff-refine-hunk 'all)    ; Show fine differences for all displayed diff hunks
   (setq magit-log-section-commit-count 52) ; How many recent commits to show in certain log sections
+  (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
   )
 
 (use-package git-gutter-fringe
@@ -951,20 +1024,20 @@ See `sort-regexp-fields'."
 
 ;;; ---------------------------------------------------------------------------
 
-(use-package ivy ; Incremental Vertical completYon
+(use-package ivy
+  ;; Incremental Vertical completYon
   :ensure swiper
   :bind (("C-c C-r" . ivy-resume)) ; resumes the latest ivy-based completion
-  :init (ivy-mode 1)
+  :custom
+  (ivy-use-virtual-buffers t   "add recent files and bookmarks")
+  (ivy-display-style 'fancy    "style for formatting the minibuffer")
+  (ivy-height 16               "number of lines for the minibuffer window")
+  (ivy-count-format "%d|%d "   "style to use for displaying the current candidate count")
+  (ivy-wrap t                  "wrap around after the first and the last candidate")
+  (ivy-extra-directories nil   "remove ../ and ./ from file name completion")
+  (ivy-use-selectable-prompt t "make the prompt line selectable like a candidate")
   :config
-  (setq
-   ivy-use-virtual-buffers t   ; add recent files and bookmarks
-   ivy-display-style 'fancy    ; style for formatting the minibuffer
-   ivy-height 16               ; number of lines for the minibuffer window
-   ivy-count-format "%d|%d "   ; style to use for displaying the current candidate count
-   ivy-wrap t                  ; wrap around after the first and the last candidate
-   ivy-extra-directories nil   ; remove ../ and ./ from file name completion
-   ivy-use-selectable-prompt t ; make the prompt line selectable like a candidate
-   ))
+  (ivy-mode 1))
 
 ;;;;;;;; avy ??????
 
@@ -973,9 +1046,8 @@ See `sort-regexp-fields'."
   :bind (([remap isearch-forward]  . swiper)
          ([remap isearch-backward] . swiper)
          ([f3]                     . swiper))
-  :config
-  (setq swiper-action-recenter t) ; recenter display after exiting ‘swiper’
-  )
+  :custom
+  (swiper-action-recenter t "recenter display after exiting ‘swiper’"))
 
 (use-package counsel ; various completion functions using Ivy
   :ensure
@@ -993,10 +1065,12 @@ See `sort-regexp-fields'."
          ;; ("C-c k"   . counsel-ag)
          ;; ("C-x l"   . counsel-locate)
          ;; ("C-S-o"   . counsel-rhythmbox)
+         ("C-c c t"   . counsel-load-theme)
          )
+  :custom
+  (counsel-find-file-at-point t "add file-at-point to the list of candidates")
   :config
-  (setq counsel-find-file-at-point t) ; add file-at-point to the list of candidates
-  )
+  (counsel-mode))
 
 ;; (use-package ivy-rich
 ;;   ;; more friendly interface for ivy
@@ -1347,8 +1421,6 @@ See `sort-regexp-fields'."
 (use-package cc-mode
   :defer
   :config
-  ;; Indentation can insert tabs if this is non-nil
-  (setq-default indent-tabs-mode nil)
   ;;
   (setq-default c-basic-offset 3)
   
@@ -1539,6 +1611,8 @@ See `sort-regexp-fields'."
 (use-package tuareg
   :ensure
   :defer
+  :mode (("\\.ml[ily]?$" . tuareg-mode)
+         ("\\.topml$" . tuareg-mode))
   :config
   (add-hook
    'tuareg-mode-hook
@@ -1550,12 +1624,9 @@ See `sort-regexp-fields'."
 
      ;; visually indicate empty lines after the buffer end
      (setq indicate-empty-lines t)
-
-     ;; Indentation can insert tabs if this is non-nil
-     (setq indent-tabs-mode nil)
      
      ;; (setq tuareg-use-smie nil)
-     (setq tuareg-match-clause-indent 3)
+     ;; (setq tuareg-match-clause-indent 3)
 
      ;; shell command used to compile ocaml programs
      (unless (or (file-exists-p "makefile")
@@ -1577,28 +1648,19 @@ See `sort-regexp-fields'."
 (use-package utop
   :ensure
   :defer
-  :init
-  (message "INIT utop")
-  (add-hook 'tuareg-mode-hook #'utop-minor-mode)
-  :config
-  (message "CONFIG utop"))
+  :hook (tuareg-mode . utop-minor-mode))
 
 (use-package ocp-indent
   ;; a simple tool and library to indent OCaml code
   :ensure
   :defer
-  :config
-  )
+  :config)
 
 (use-package merlin
   :ensure
   :defer
   :after company
-  :init
-  (message "INIT merlin")
-  ;; start merlin on ocaml files
-  (add-hook 'tuareg-mode-hook #'merlin-mode)
-  (add-hook 'caml-mode-hook #'merlin-mode)
+  :hook ((tuareg-mode caml-mode) . merlin-mode)
   :config
   (message "CONFIG merlin")
   ;; make company aware of merlin
@@ -1627,6 +1689,23 @@ See `sort-regexp-fields'."
   (setq merlin-error-after-save nil)
   ;; Enable Flycheck checker
   (flycheck-ocaml-setup))
+
+;; provided by dune
+(use-package dune
+  ;; :defer
+  ;; :mode (("^dune$" . dune-mode)
+  ;;        ("^dune-project$" . dune-mode)
+  ;;        ("^dune-workspace$" . dune-mode))
+  )
+
+(use-package dune-flymake
+  :after (:all dune flymake))
+
+(use-package ocamlformat
+  ;; :straight (:host github :repo "ocaml-ppx/ocamlformat" :files ("emacs/ocamlformat.el"))
+  ;; :custom (ocamlformat-show-errors nil)
+  :bind (:map tuareg-mode-map
+              ("M-<iso-lefttab>" . ocamlformat)))
 
 ;;;----------------------------------------------------------------------------
 
@@ -1806,10 +1885,12 @@ See `sort-regexp-fields'."
 (use-package apropospriate-theme            :ensure :defer) ; dark light
 (use-package arc-dark-theme                 :ensure :defer) ; dark
 (use-package avk-emacs-themes               :ensure :defer) ; dark light
+(use-package berrys-theme                   :ensure :defer) ;      light
 (use-package badwolf-theme                  :ensure :defer) ; dark
 (use-package brutalist-theme                :ensure :defer) ;      light
 (use-package challenger-deep-theme          :ensure :defer) ; dark
 (use-package chyla-theme                    :ensure :defer) ;      light
+(use-package cloud-theme                    :ensure :defer) ;      light
 (use-package color-theme-sanityinc-tomorrow :ensure       ) ; dark light
 (use-package danneskjold-theme              :ensure :defer) ; dark
 (use-package dark-mint-theme                :ensure :defer) ; dark
@@ -1837,12 +1918,16 @@ See `sort-regexp-fields'."
 (use-package material-theme                 :ensure :defer) ; dark light
 (use-package moe-theme                      :ensure :defer) ; dark light
 (use-package molokai-theme                  :ensure :defer) ; dark
+(use-package monokai-pro-theme              :ensure :defer) ; dark
+(use-package mood-one-theme                 :ensure :defer) ; dark
+(use-package naysayer-theme                 :ensure :defer) ; dark
 (use-package nimbus-theme                   :ensure :defer) ; dark
 (use-package nord-theme                     :ensure :defer) ; dark
 (use-package nubox                          :ensure :defer) ; dark light tty
 (use-package one-themes                     :ensure :defer) ; dark light
 (use-package organic-green-theme            :ensure :defer) ;      light
 (use-package panda-theme                    :ensure :defer) ; dark
+(use-package parchment-theme                :ensure :defer) ;      light
 (use-package planet-theme                   :ensure :defer) ; dark
 (use-package purp-theme                     :ensure :defer) ; 
 (use-package reykjavik-theme                :ensure :defer) ; dark
@@ -1919,7 +2004,7 @@ See `sort-regexp-fields'."
     (interactive)
     (theme-looper--disable-all-themes))
   ;; preferred theme: distinguished
-  (theme-looper-set-favorite-themes-regexp "doom")
+  ;; (theme-looper-set-favorite-themes-regexp "doom")
   (theme-looper-enable-random-theme)
   )
 
@@ -1950,23 +2035,22 @@ See `sort-regexp-fields'."
 ;;; ispell
 ;;;
 
+(use-package ispell
+  :defer
+  :custom
+  (ispell-silently-savep t)
+  ;; (ispell-dictionary "pt_BR")
+  ;; (ispell-program-name "hunspell")
+  ;; (ispell-extra-args '("-i" "utf-8"))
+  )
+
 ; Resets the dictionary list for the hunspell dictionaries.
 (setq ispell-dictionary-alist
       '(
         (nil     "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-d" "en_US") nil utf-8)
         ("en_US" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-d" "en_US") nil utf-8)
-        ("pt_BR" "[a-zàáâãçéêíóôõúüA-ZÀÁÂÃÇÉÊÍÓÔÕÚÜ]"
-         "[^a-zàáâãçéêíóôõúüA-ZÀÁÂÃÇÉÊÍÓÔÕÚÜ]" "" nil
-         ("-d" "pt_BR") nil utf-8)
+        ("pt_BR" "[a-zàáâãçéêíóôõúüA-ZÀÁÂÃÇÉÊÍÓÔÕÚÜ]" "[^a-zàáâãçéêíóôõúüA-ZÀÁÂÃÇÉÊÍÓÔÕÚÜ]" "" nil ("-d" "pt_BR") nil utf-8)
         ))
-
-(eval-after-load "ispell"
-  (progn
-    (setq ;; ispell-dictionary "pt_BR"
-          ;; ispell-extra-args '("-i" "utf-8")
-          ispell-silently-savep t)))
-;(setq-default ispell-program-name "hunspell")
-
 
 ;;; ---------------------------------------------------------------------------
 ;;; emacs-tiny-tools
@@ -2167,8 +2251,10 @@ See `sort-regexp-fields'."
   :ensure
   :defer
   :mode ("\\.nix\\'" "\\.nix.in\\'")
-  ;; :init
+  :config
   ;; (add-hook 'nix-mode-hook (lambda () (smartscan-mode 1)))
+  ;; hiphen should be a symbol constituent
+  (add-hook 'nix-mode-hook (lambda () (modify-syntax-entry ?- "_")))
   )
 
 (use-package company-nixos-options
@@ -2347,7 +2433,8 @@ See `sort-regexp-fields'."
 
 (use-package matlab
   :ensure matlab-mode
-  :mode ("\\.m\\'" . matlab-mode)
+  :mode (("\\.m\\'" . matlab-mode)
+         ("\\.sci\\'" . matlab-mode))
   :commands (matlab-shell)
   :config
   (setq matlab-indent-function t)	; if you want function bodies indented
@@ -2359,6 +2446,9 @@ See `sort-regexp-fields'."
     '())
   (add-hook 'matlab-shell-mode-hook 'my/matlab-shell-mode-hook)
   )
+
+;; http://forge.scilab.org/index.php/p/scilab-emacs/source/tree/master/scilab.el
+;;(load "scilab-startup")
 
 ;;; ---------------------------------------------------------------------------
 
@@ -2614,6 +2704,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
   :bind (([print]           . ps-spool-buffer-with-faces)
          ([(meta print)]    . ps-print-buffer-with-faces)
+         ([(meta super p)]  . ps-print-buffer-with-faces)
          ([(shift print)]   . ps-spool-region-with-faces)
          ([(control print)] . ps-despool))
   
@@ -2631,7 +2722,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
         ps-header-font-size       '(8 . 8)
         ps-header-title-font-size '(7 . 7)
         ps-header-line-pad        0.15
-        ps-header-lines           1
+        ps-header-lines           2
         ps-header-offset          15
         ps-print-header-frame     nil
         ps-right-header           '("/pagenumberstring load")
@@ -2660,6 +2751,15 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 
 ;;;----------------------------------------------------------------------------
+
+(use-package frog-jump-buffer
+  ;; EXPERIMENTAL
+  ;;
+  ;; The fastest buffer-jumping Emacs lisp package around, the
+  ;; spiritual successor to ace-jump-buffer, powered by avy via
+  ;; frog-menu, allows to hop to any Emacs buffer in 2-3 key strokes
+  :ensure
+  :bind ("C-c C-b" . frog-jump-buffer))
 
 (use-package define-word
   ;; Display the definition of word at point
@@ -2694,7 +2794,6 @@ XLFD defaults to the selected frame's font, or the default face's font."
 (use-package sudo-edit
   ;; Utilities for opening files with sudo
   :ensure
-  :defer
   :bind (("C-c f s" . sudo-edit)))
 
 (use-package dired-sort-menu
@@ -2709,8 +2808,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
 (use-package diredfl
   ;; extra font lock rules for a more colourful dired
   :ensure
-  :defer
-  :init (add-hook 'dired-mode-hook #'diredfl-mode))
+  :hook (dired-mode . diredfl-mode))
 
 
 
@@ -2725,11 +2823,56 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :bind (("C-c i" . string-inflection-all-cycle)))
 
 
-;; Support ligatures from PragmataPro font in Emacs
-;; https://github.com/fabrizioschiavi/pragmatapro
-(load "pragmatapro-prettify-symbols-v0.827")
-(add-hook 'prog-mode-hook #'add-pragmatapro-prettify-symbols-alist)
-(global-prettify-symbols-mode +1)
+;;HERE
+;; ;; Support ligatures from PragmataPro font in Emacs
+;; ;; https://github.com/fabrizioschiavi/pragmatapro
+;; (use-package "pragmatapro-prettify-symbols-v0.827"
+;;   :hook
+;;   (prog-mode . add-pragmatapro-prettify-symbols-alist)
+;;   :init
+;;   (global-prettify-symbols-mode +1))
+
+(use-package counsel-ffdata
+  ;; access Firefox bookmarks and history with ivy interface
+  ;; needs sqlite3 binary
+  :ensure
+  :bind (("C-c F h" . counsel-ffdata-firefox-history)
+         ("C-c F b" . counsel-ffdata-firefox-bookmarks)))
+
+;; ;; Ligature in fonts
+;; ;; Using composition char table
+;; ;; https://github.com/tonsky/FiraCode/issues/42#issuecomment-450403454
+;; ;; https://github.com/tonsky/FiraCode/wiki/Emacs-instructions
+
+;; (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+;;                (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+;;                (36 . ".\\(?:>\\)")
+;;                (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+;;                (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+;;                (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+;;                (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+;;                (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+;;                (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+;;                (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+;;                (48 . ".\\(?:x[a-zA-Z]\\)")
+;;                (58 . ".\\(?:::\\|[:=]\\)")
+;;                (59 . ".\\(?:;;\\|;\\)")
+;;                (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+;;                (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+;;                (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+;;                (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+;;                (91 . ".\\(?:]\\)")
+;;                (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+;;                (94 . ".\\(?:=\\)")
+;;                (119 . ".\\(?:ww\\)")
+;;                (123 . ".\\(?:-\\)")
+;;                (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+;;                (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+;;                )
+;;              ))
+;;   (dolist (char-regexp alist)
+;;     (set-char-table-range composition-function-table (car char-regexp)
+;;                           `([,(cdr char-regexp) 0 font-shape-gstring]))))
 
 ;;;----------------------------------------------------------------------------
 
@@ -2740,18 +2883,18 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 ;;;----------------------------------------------------------------------------
 
-
-
-
-
+(use-package vala-mode
+  :ensure)
 
 ;;----------------------------------------------------------------------------
 ;; Starts server for (among others) emacsclient
 ;;----------------------------------------------------------------------------
 
-(autoload 'server-running-p "server" nil nil)
-
-(unless (or (daemonp) (server-running-p))
+(use-package server
+  :preface (autoload 'server-running-p "server" nil nil)
+  :unless (or noninteractive (daemonp) (server-running-p))
+  :defer
+  :config
   (message "Starting server at %s..." (current-time-string))
   (server-start))
 
