@@ -132,15 +132,32 @@ of installed packages."
   )
 
 (use-package paradox
-  ;; modernizing Emacs' Package Menu
-  :defer 1
+  ;; modernized package menu
+  :ensure
+  :defer
+  :bind (("C-c p" . paradox-list-packages)
+         ("C-c P" . paradox-upgrade-packages))
+  :custom
+  (paradox-column-width-package 27)
+  (paradox-column-width-version 13)
+  (paradox-execute-asynchronously t)
+  (paradox-hide-wiki-packages t)
+  (paradox-github-token t) ;; ????????
+  (paradox-spinner-type 'moon)
   :config
   (paradox-enable)
-  (setq paradox-column-width-package 27)
-  (setq paradox-column-width-version 13)
-  (setq paradox-execute-asynchronously t)
-  (setq paradox-hide-wiki-packages t)
-  (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
+  ;; (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print)
+
+  ;; ???????
+  ;; (require 'gh)
+  ;; (setq paradox-github-token (gh-auth-get-oauth-token))
+
+  ;; ???????
+  ;; :after auth-source-pass
+  ;; (setq paradox-github-token (auth-source-pass-get 'secret "paradox-github-token"))
+  ;; :custom
+  ;; (paradox-automatically-star t)
+  )
 
 ;;----------------------------------------------------------------------------
 
