@@ -19,15 +19,13 @@
     (when (file-directory-p dir)
       (add-to-list 'load-path dir))))
 
-
 ;; ----------------------------------------------------------------------
-;; --- Benchamarking initialization
+;; Benchamarking initialization
 ;; ----------------------------------------------------------------------
 
 (defun jrm/time-subtract-millis (b a)
   "Ellapsed time between B and A in milliseconds."
   (* 1000.0 (float-time (time-subtract b a))))
-
 
 (defvar jrm/require-times nil
   "A list of (FEATURE . LOAD-DURATION).
@@ -42,6 +40,21 @@ LOAD-DURATION is the time taken in milliseconds to load FEATURE.")
       (when (and (not already-loaded) (memq feature features))
         (let ((time (jrm/time-subtract-millis (current-time) require-start-time)))
           (add-to-list 'jrm/require-times (cons feature time) t))))))
+
+;;;;;;;;;;
+
+
+(if (require 'benchmark-init nil 'noerror)
+    (progn
+      (message "benchmark-init loaded")
+      (benchmark-init/activate)
+      (add-hook 'after-init-hook (lambda ()
+                                   (benchmark-init/show-durations-tabulated)
+                                   (benchmark-init/show-durations-tree)
+                                   ;;(benchmark-init/deactivate)
+                                   )))
+  (message "benchmark-init not loaded yet"))
+
 
 ;;----------------------------------------------------------------------------
 ;; Temporarily reduce garbage collection during startup
@@ -109,6 +122,14 @@ of installed packages."
 (setq use-package-verbose t)
 
 ;;----------------------------------------------------------------------------
+
+(use-package benchmark-init
+  ;; Benchmark emacs initialization
+  :ensure
+  ;; :demand
+  ;; :disabled
+  ;; :hook (after-init . benchmark-init/deactivate)
+  )
 
 (use-package paradox
   ;; modernizing Emacs' Package Menu
