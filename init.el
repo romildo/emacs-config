@@ -1,9 +1,14 @@
-;;; init --- Emacs initialization -*- lexical-binding: t -*-
-;;; Commentary:
-;;; Code:
+;;; init.el --- Emacs initialization -*- lexical-binding: t -*-
+;; Copyright (C) 2019 Romildo
+;; Author: José Romildo Malaquias <malaquias@gmail.com>
+;; Commentary:
+;; Code:
 
+;;;; See https://github.com/a13/emacs.d for ideas
 
 (message "Starting emacs at %s..." (current-time-string))
+
+(message "load-path: %s" load-path)
 
 (when (version<= emacs-version "24")
   (message "Your Emacs is old, and some functionality in this config will be disabled.")
