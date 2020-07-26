@@ -856,6 +856,11 @@ See `sort-words'."
 ;; (display-battery-mode 1) ; display battery status in mode lines
 ;; (setq battery-mode-line-format "[%b%p%% %t,%d°C]")
 
+(use-package simple-modeline
+  ;; A simple mode-line configuration for Emacs.
+  :ensure
+  :hook (after-init . simple-modeline-mode))
+
 (use-package spaceline-config
   ;; Modeline configuration library for powerline
   :ensure spaceline
