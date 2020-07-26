@@ -1300,31 +1300,41 @@ See `sort-words'."
   (message "CONFIG flycheck-clang-analyzer")
   (flycheck-clang-analyzer-setup))
 
-(use-package cmake-font-lock
+
+
+(use-package cmake-mode
+  ;; Major-mode for editing CMake sources
   :ensure
-  :defer
+  :defer)
+
+(use-package cmake-font-lock
+  ;; Advanced, type aware, highlight support for CMake
+  :ensure
   :hook (cmake-mode . cmake-font-lock-activate))
 
-(use-package cmake-ide
-  :ensure
-  :defer
-  :bind (("<f9>" . cmake-ide-compile))
-  :hook (c-mode-common . (lambda ()
-                           (cmake-ide-setup)
-                           (setq cmake-ide-build-pool-use-persistent-naming t)
-                           (when (cmake-ide--locate-project-dir)
-                             (setq cmake-ide-build-dir (concat (cmake-ide--locate-project-dir) "build_"))))))
+;; (use-package cmake-ide
+;;   ;; IDE-like features for CMake projects
+;;   :disabled
+;;   :ensure
+;;   :defer
+;;   :bind (("<f9>" . cmake-ide-compile))
+;;   :hook (c-mode-common . (lambda ()
+;;                            (cmake-ide-setup)
+;;                            (setq cmake-ide-build-pool-use-persistent-naming t)
+;;                            (when (cmake-ide--locate-project-dir)
+;;                              (setq cmake-ide-build-dir (concat (cmake-ide--locate-project-dir) "build_"))))))
 
-(use-package cmake-project
-  :disabled ; seems to be unmaintained
-  :ensure
-  :defer
-  :init
-  (defun maybe-cmake-project-hook ()
-    (when (file-exists-p "CMakeLists.txt")
-      (cmake-project-mode)))
-  (add-hook 'c-mode-hook #'maybe-cmake-project-hook)
-  (add-hook 'c++-mode-hook #'maybe-cmake-project-hook))
+;; (use-package cmake-project
+;;   ;; Minor-mode integrating the CMake build process with the Emacs ecosystem
+;;   :disabled ; seems to be unmaintained
+;;   :ensure
+;;   :defer
+;;   :hook ((c-mode . maybe-cmake-project-hook)
+;;          (c++-mode . maybe-cmake-project-hook))
+;;   :preface
+;;   (defun maybe-cmake-project-hook ()
+;;     (when (file-exists-p "CMakeLists.txt")
+;;       (cmake-project-mode))))
 
 ;;; ---------------------------------------------------------------------------
 ;;; jka-compr-hook
