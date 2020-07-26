@@ -2617,18 +2617,17 @@ See `sort-words'."
 ;;;----------------------------------------------------------------------------
 
 (use-package org
-  ;; keeping notes, maintaining TODO lists, planning projects, and
-  ;; authoring documents
+  ;; keeping notes, maintaining TODO lists, planning projects, and authoring documents
   :defer
   :bind (("\C-c l" . org-store-link)
          ("\C-c a" . org-agenda)
          ("\C-c b" . org-iswitchb)
          ;; ("\C-c t" . orgtbl-mode)
          )
-  :init
-  ;; not needed when global-font-lock-mode is on
-  (add-hook 'org-mode-hook #'turn-on-font-lock)
-  (add-hook 'latex-mode-hook #'turn-on-orgtbl)
+  :hook
+  ((org-mode . turn-on-font-lock)
+   (latex-mode . turn-on-orgtbl)
+   )
   )
 
 (use-package epresent
