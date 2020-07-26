@@ -1471,11 +1471,17 @@ See `sort-words'."
   (push '(c++-mode . "ellemtel") c-default-style)
   )
 
+(use-package google-c-style
+  :disabled
+  :ensure
+  :hook (((c-mode c++-mode) . google-set-c-style)
+         (c-mode-common . google-make-newline-indent)))
+
 (use-package modern-cpp-font-lock
   ;; Font-locking for "Modern C++"
   :ensure
   :after cc-mode
-  :config (add-hook 'c++-mode-hook #'modern-c++-font-lock-mode))
+  :hook (c++-mode . modern-c++-font-lock-mode))
 
 (use-package eclim ;  an interface to the Eclipse IDE
   :disabled
