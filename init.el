@@ -1756,10 +1756,10 @@ See `sort-words'."
 
 ;; provided by dune
 (use-package dune
-  ;; :defer
-  ;; :mode (("^dune$" . dune-mode)
-  ;;        ("^dune-project$" . dune-mode)
-  ;;        ("^dune-workspace$" . dune-mode))
+  :defer
+  :mode (("^dune$" . dune-mode)
+         ("^dune-project$" . dune-mode)
+         ("^dune-workspace$" . dune-mode))
   )
 
 (use-package dune-flymake
