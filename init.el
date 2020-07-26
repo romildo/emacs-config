@@ -1243,7 +1243,8 @@ See `sort-words'."
 (use-package irony
   ;; A C/C++/Objective-C minor mode powered by libclang
   :ensure
-  :defer
+  :disabled
+  :defer000000
   ;; :delight "👔"
   
   :init
@@ -1264,6 +1265,7 @@ See `sort-words'."
 
 (use-package company-irony
   :ensure
+  :disabled
   :after (irony company)
   :hook (irony-mode . company-irony-setup-begin-commands)
   :config (add-to-list 'company-backends 'company-irony))
@@ -1271,22 +1273,26 @@ See `sort-words'."
 (use-package company-irony-c-headers
   ;; a company-mode backend for C/C++ header files that works with irony-mode
   :ensure
+  :disabled
   :after company-irony
   :config (add-to-list 'company-backends 'company-irony-c-headers))
 
 (use-package flycheck-irony
   :ensure
+  :disabled
   :defer
   :after (irony flycheck)
   :hook (flycheck-mode . flycheck-irony-setup))
 
 (use-package irony-eldoc
   :ensure
+  :disabled
   :after irony
   :hook (irony-mode . irony-eldoc))
 
 (use-package flycheck-clang-analyzer
   :ensure
+  :disabled
   :defer
   :after flycheck-irony
   :config
