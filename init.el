@@ -2833,6 +2833,10 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 ;;;----------------------------------------------------------------------------
 
+(use-package udev-mode
+  ;; Editing udev rules files 
+  :ensure
+  :defer)
 (use-package frog-jump-buffer
   ;; EXPERIMENTAL
   ;;
