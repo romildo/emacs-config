@@ -2251,8 +2251,10 @@ See `sort-words'."
 ;;;----------------------------------------------------------------------------
 ;;; apt-sources-mode
 
-(autoload 'apt-sources-mode "apt-sources" "apt's sources.list Major mode" t)
-(add-to-list 'auto-mode-alist '("sources.list$" . apt-sources-mode))
+(use-package apt-sources-list
+  ;; Mode for editing APT source.list files
+  :ensure
+  :defer)
 
 ;;;----------------------------------------------------------------------------
 ;;; ebuild-mode
