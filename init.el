@@ -1,5 +1,5 @@
 ;;; init.el --- Emacs initialization -*- lexical-binding: t -*-
-;; Copyright (C) 2019 Romildo
+;; Copyright (C) 2020 Romildo
 ;; Author: José Romildo Malaquias <malaquias@gmail.com>
 ;; Commentary:
 ;; Code:
