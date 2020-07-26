@@ -39,3 +39,5 @@ elpa
 /url/cookies
 /session.*
 /transient
+
+custom.el
