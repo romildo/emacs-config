@@ -99,6 +99,7 @@ of installed packages."
   (setq package-check-signature (when (executable-find "gpg") 'allow-unsigned))
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+  (add-to-list 'package-archives '("user42" . "https://download.tuxfamily.org/user42/elpa/packages/") t)
   (package-initialize)
   ;; (package-initialize 'no-activate)
   (my/ensure-packages-installed 'use-package))
@@ -708,39 +709,38 @@ modified."
 
 
 
-
-
 ;; http://unix.stackexchange.com/questions/19494/how-to-colorize-text-in-emacs
+;; this seems to  be very slow for large files
 (define-derived-mode my/fundamental-ansi-mode fundamental-mode "fundamental ansi"
   "Fundamental mode that understands ansi colors."
   (require 'ansi-color)
   (ansi-color-apply-on-region (point-min) (point-max)))
 
-(add-to-list 'auto-mode-alist '("nix-build.log\\'" . my/fundamental-ansi-mode))
-
-
-
+;; (add-to-list 'auto-mode-alist '("nix-build.log\\'" . my/fundamental-ansi-mode))
 
 
 ;; https://stackoverflow.com/questions/23378271/how-do-i-display-ansi-color-codes-in-emacs-for-any-mode/23382008
+(use-package tty-format
+  ;; Adds Emacs format-alist entries for two tty oriented text
+  ;; annotations: ANSI SGR escape sequences, and backspace
+  ;; bold,underline and overline.
+  ;; http://user42.tuxfamily.org/tty-format/index.html
 
-;; (add-to-list 'load-path "path/to/your/tty-format.el/")
+  :ensure ; available on "user42" ELPA archive
 
-(require 'tty-format)
+  :config
 
-;; M-x display-ansi-colors to explicitly decode ANSI color escape sequences
-(defun display-ansi-colors ()
-  (interactive)
-  (format-decode-buffer 'ansi-colors))
+  ;; M-x display-ansi-colors to explicitly decode ANSI color escape sequences
+  (defun display-ansi-colors ()
+    (interactive)
+    (format-decode-buffer 'ansi-colors))
 
-;; decode ANSI color escape sequences for *.txt or README files
-(add-hook 'find-file-hooks 'tty-format-guess)
+  ;; decode ANSI color escape sequences for *.txt or README files
+  (add-hook 'find-file-hooks 'tty-format-guess)
 
-;; decode ANSI color escape sequences for .log files
-(add-to-list 'auto-mode-alist '("\\.log\\'" . display-ansi-colors))
-
-
-
+  ;; decode ANSI color escape sequences for .log files
+  (add-to-list 'auto-mode-alist '("\\.log\\'" . display-ansi-colors))
+  )
 
 
 
