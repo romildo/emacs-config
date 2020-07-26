@@ -2860,8 +2860,6 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :bind ("C-c d" . define-word-at-point)
         ("C-c D" . define-word))
 
-(use-package grep-context :ensure)
-
 (use-package clean-buffers :ensure)
 
 (use-package rpm-spec-mode :ensure :defer)
