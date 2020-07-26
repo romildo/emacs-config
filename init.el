@@ -1949,6 +1949,7 @@ See `sort-words'."
 (use-package apropospriate-theme            :ensure :defer) ; dark light
 (use-package arc-dark-theme                 :ensure :defer) ; dark
 (use-package avk-emacs-themes               :ensure :defer) ; dark light
+(use-package ayu-theme                      :ensure :defer) ; dark light
 (use-package berrys-theme                   :ensure :defer) ;      light
 (use-package badwolf-theme                  :ensure :defer) ; dark
 (use-package brutalist-theme                :ensure :defer) ;      light
@@ -1962,6 +1963,8 @@ See `sort-words'."
 (use-package eink-theme                     :ensure :defer) ;      light
 (use-package exotica-theme                  :ensure :defer) ; dark
 (use-package faff-theme                     :ensure :defer) ;      light
+(use-package fantom-theme                   :ensure :defer) ; dark
+(use-package flatfluc-theme                 :ensure :defer) ;      light
 (use-package flatui-dark-theme              :ensure :defer) ; dark
 (use-package flucui-themes                  :ensure :defer) ; dark light
 (use-package forest-blue-theme              :ensure :defer) ; dark
@@ -1970,6 +1973,8 @@ See `sort-words'."
 (use-package grayscale-theme                :ensure :defer) ; dark
 (use-package gruvbox-theme                  :ensure :defer) ; dark
 (use-package hamburg-theme                  :ensure :defer) ; dark
+(use-package horizon-theme                  :ensure :defer) ; dark
+(use-package humanoid-themes                :ensure :defer) ; dark light
 (use-package idea-darkula-theme             :ensure :defer) ; dark
 (use-package intellij-theme                 :ensure :defer) ;      light
 (use-package jbeans-theme                   :ensure :defer) ; dark
@@ -1981,7 +1986,7 @@ See `sort-words'."
 (use-package majapahit-theme                :ensure :defer) ; dark light
 (use-package material-theme                 :ensure :defer) ; dark light
 (use-package moe-theme                      :ensure :defer) ; dark light
-(use-package molokai-theme                  :ensure :defer) ; dark
+(use-package molokai-theme                  :ensure :config (load-theme 'molokai t)) ; dark
 (use-package monokai-pro-theme              :ensure :defer) ; dark
 (use-package mood-one-theme                 :ensure :defer) ; dark
 (use-package naysayer-theme                 :ensure :defer) ; dark
@@ -1994,6 +1999,7 @@ See `sort-words'."
 (use-package parchment-theme                :ensure :defer) ;      light
 (use-package planet-theme                   :ensure :defer) ; dark
 (use-package purp-theme                     :ensure :defer) ; 
+(use-package qtcreator-theme                :ensure :defer) ;      light
 (use-package reykjavik-theme                :ensure :defer) ; dark
 (use-package seoul256-theme                 :ensure :defer) ; dark light
 (use-package silkworm-theme                 :ensure :defer) ;      light
@@ -2005,6 +2011,11 @@ See `sort-words'."
 (use-package suscolors-theme                :ensure :defer) ; dark
 (use-package tao-theme                      :ensure :defer) ; 
 (use-package toxi-theme                     :ensure :defer) ; dark
+(use-package tron-legacy-theme              :ensure :defer) ; dark
+(use-package vs-dark-theme                  :ensure :defer) ; dark
+(use-package vs-light-theme                 :ensure :defer) ;      light
+(use-package vscdark-theme                  :ensure :defer) ; dark
+(use-package vscode-dark-plus-theme         :ensure :defer) ; dark
 (use-package yoshi-theme                    :ensure :defer) ; dark
 (use-package zenburn-theme                  :ensure :defer) ; dark
 (use-package zeno-theme                     :ensure :defer) ; dark
@@ -2057,9 +2068,11 @@ See `sort-words'."
 
 (use-package theme-looper
   :ensure
-  :bind (("C-|" . theme-looper-enable-next-theme)
+  :bind (("C-}" . theme-looper-enable-next-theme)
+         ("C-{" . theme-looper-enable-previous-theme)
          ("C-\\" . theme-looper-enable-random-theme)
-         ("C-M-|" . my/disable-all-themes))
+         ("C-|" . theme-looper-select-theme)
+         ("C-M-|" . theme-looper-select-theme-from-all))
   :commands (theme-looper-enable-theme)
   :demand
   :config
@@ -2069,7 +2082,7 @@ See `sort-words'."
     (theme-looper--disable-all-themes))
   ;; preferred theme: distinguished
   ;; (theme-looper-set-favorite-themes-regexp "doom")
-  (theme-looper-enable-random-theme)
+  ;; (theme-looper-enable-random-theme)
   )
 
 (use-package remember-last-theme
