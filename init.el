@@ -2837,6 +2837,14 @@ XLFD defaults to the selected frame's font, or the default face's font."
   ;; Editing udev rules files 
   :ensure
   :defer)
+
+(use-package remind-bindings
+  :ensure
+  :disabled
+  :bind (("C-c C-d" . 'remind-bindings-toggle-buffer)  ;; toggle buffer
+         ("C-c M-d" . 'remind-bindings-specific-mode)) ;; buffer-specific only
+  :hook (after-init . remind-bindings-initialise))
+
 (use-package frog-jump-buffer
   ;; EXPERIMENTAL
   ;;
