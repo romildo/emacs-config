@@ -1458,7 +1458,7 @@ See `sort-words'."
   :defer
   :config
   ;;
-  (setq-default c-basic-offset 3)
+  ;; (setq-default c-basic-offset 3)
   
   ;; new key bindings
   (define-key c-mode-base-map [(control x) ?c] 'compile)
