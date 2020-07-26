@@ -1522,6 +1522,28 @@ See `sort-words'."
 ;;   ;;       meghanada-auto-start t)
 ;;   )
 
+                                        ; lsp-mode with
+                                        ;   with ccls
+                                        ;     or clangd
+                                        ; cquery
+
+(use-package lsp-mode
+  ;; client for the language server protocol
+  :ensure
+  :hook ((c-mode c++-mode objc-mode) . lsp)
+  )
+
+(use-package lsp-ui
+  :ensure
+  :disabled
+  :after lsp-mode
+  ;; :hook (lsp-mode . lsp-ui-mode)
+  )
+
+;; (use-package ccls
+;;   :ensure
+;;   :defer)
+
 ;;; ---------------------------------------------------------------------
 ;;; python-mode
 
