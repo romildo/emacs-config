@@ -974,6 +974,21 @@ See `sort-words'."
 
 ;;; ---------------------------------------------------------------------------
 
+(use-package yaml-mode
+  ;; major mode for editing files in the YAML data serialization format
+  :ensure
+  :defer
+  ;; :mode ("\\.yaml\\'" "\\.yml\\'")
+  ;; :hook (yaml-mode . '(lambda ()
+  ;;                       (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
+  )
+
+;; (use-package flycheck-yamllint
+;;   :ensure
+;;   :after yaml-mode)
+
+;;; ---------------------------------------------------------------------------
+
 (use-package magit
   ;; an interface to the version control system Git
   :ensure
