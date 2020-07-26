@@ -2887,10 +2887,11 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :ensure
   :bind (("C-c f s" . sudo-edit)))
 
-(use-package dired-sort-menu
+(use-package etc-sudoers-mode
+  ;; Syntax highlighting for the Sudo security policy file, /etc/sudoers
   :ensure
-  :after dired
-  :config)
+  :defer
+  )
 
 (use-package all-the-icons-dired
   :ensure
