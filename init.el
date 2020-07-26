@@ -2163,14 +2163,10 @@ See `sort-words'."
 ;;; fvwm-mode
 ;;;
 
-(autoload 'fvwm-mode "fvwm-mode" "Mode for editing fvwm files" t)
-
-(add-to-list 'auto-mode-alist '("\\.fvwm2rc$\\|\\.fvwmrc$" . fvwm-mode))
-
-(add-hook 'fvwm-mode-hook
-	  (lambda ()
-	    (fvwm-enable-indentation)
-	    (setq fvwm-last-updated-suffix "")))
+(use-package fvwm-mode
+  ;; A major mode for editing Fvwm configuration files
+  :ensure
+  :defer)
 
 ;;;----------------------------------------------------------------------------
 ;;; ERC (Emacs IRC Client)
