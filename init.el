@@ -2995,7 +2995,9 @@ XLFD defaults to the selected frame's font, or the default face's font."
 ;;----------------------------------------------------------------------------
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file)
+
+(when (file-exists-p custom-file)
+  (load custom-file))
 
 ;;----------------------------------------------------------------------------
 ;; Reports init completion time
