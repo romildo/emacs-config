@@ -2343,6 +2343,13 @@ See `sort-words'."
   :ensure
   :after nix-mode)
 
+(use-package nixpkgs-fmt
+  ;; Reformat Nix code with nixpkgs-fmt
+  :ensure
+  :after nix-mode
+  ;; :hook (nix-mode . nixpkgs-fmt-on-save-mode)
+  :bind (:map nix-mode-map ("C-c C-f" . nixpkgs-fmt)) )
+
 ;;;----------------------------------------------------------------------------
 ;;; tabbar
 
