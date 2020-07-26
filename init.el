@@ -1894,10 +1894,10 @@ See `sort-words'."
 ;;; ---------------------------------------------------------------------------
 ;;; Mutt support
 
-(use-package muttrc-mode
+(use-package mutt-mode
+  ;; major mode for editing mutt configuration
   :ensure
-  :mode (("muttrc\\'"   . muttrc-mode)
-         ("/tmp/mutt.*" . mail-mode))
+  :defer
   )
 
 (use-package post
