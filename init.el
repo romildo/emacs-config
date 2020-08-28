@@ -1851,13 +1851,14 @@ See `sort-words'."
 
 (use-package lua-mode
   :ensure
-  :defer
+  :hook
+  ((lua-mode . folding-mode)
+   (lua-mode . hs-minor-mode))
+  :custom
+  (lua-indent-level 4)
+  (lua-documentation-function 'eww)
   :config
-  (setq lua-indent-level 4)
-  (setq lua-documentation-function 'eww)
-  (folding-add-to-marks-list 'lua-mode "-- {{{" "-- }}}" nil t)
-  (add-hook 'lua-mode-hook #'folding-mode)
-  (add-hook 'lua-mode-hook #'hs-minor-mode))
+  (folding-add-to-marks-list 'lua-mode "-- {{{" "-- }}}" nil t))
 
 ;;; ---------------------------------------------------------------------
 
