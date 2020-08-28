@@ -1049,6 +1049,7 @@ See `sort-words'."
 (use-package ivy
   ;; Incremental Vertical completYon
   :ensure swiper
+  :demand
   :bind (("C-c C-r" . ivy-resume)) ; resumes the latest ivy-based completion
   :custom
   (ivy-use-virtual-buffers t   "add recent files and bookmarks")
