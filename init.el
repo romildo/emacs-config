@@ -485,8 +485,10 @@ of installed packages."
 (use-package default-text-scale
   ;; Easily adjust the font size in all Emacs frames
   :ensure
-  :bind (("C-M-=" . default-text-scale-increase)
-         ("C-M--" . default-text-scale-decrease)))
+  :defer
+  ;; :bind (("C-M-=" . default-text-scale-increase)
+  ;;        ("C-M--" . default-text-scale-decrease))
+  )
 
 (use-package iqa
   ;; Init file (and directory) Quick Access
