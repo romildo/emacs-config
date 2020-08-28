@@ -1949,7 +1949,7 @@ See `sort-words'."
 ;; (setq fill-individual-varying-indent t) ; ??????????????
 
 ;;; ---------------------------------------------------------------------------
-;;; themes
+;;; Themes
 
 (use-package abyss-theme                    :ensure :defer) ; dark
 (use-package alect-themes                   :ensure :defer) ; dark light
@@ -1964,7 +1964,7 @@ See `sort-words'."
 (use-package challenger-deep-theme          :ensure :defer) ; dark
 (use-package chyla-theme                    :ensure :defer) ;      light
 (use-package cloud-theme                    :ensure :defer) ;      light
-(use-package color-theme-sanityinc-tomorrow :ensure       ) ; dark light
+(use-package color-theme-sanityinc-tomorrow :ensure :defer) ; dark light
 (use-package danneskjold-theme              :ensure :defer) ; dark
 (use-package dark-mint-theme                :ensure :defer) ; dark
 (use-package doneburn-theme                 :ensure :defer) ; light
@@ -1994,7 +1994,7 @@ See `sort-words'."
 (use-package majapahit-theme                :ensure :defer) ; dark light
 (use-package material-theme                 :ensure :defer) ; dark light
 (use-package moe-theme                      :ensure :defer) ; dark light
-(use-package molokai-theme                  :ensure :config (load-theme 'molokai t)) ; dark
+(use-package molokai-theme                  :ensure :defer) ; dark
 (use-package monokai-pro-theme              :ensure :defer) ; dark
 (use-package mood-one-theme                 :ensure :defer) ; dark
 (use-package naysayer-theme                 :ensure :defer) ; dark
@@ -2033,70 +2033,53 @@ See `sort-words'."
   :ensure
   :defer
   :config
-  (message "CONFIG doom-themes...")
   (doom-themes-visual-bell-config) ; enable flashing the mode-line on error
   (doom-themes-neotree-config) ; enable custom neotree theme (all-the-icons fonts must be installed!)
   (doom-themes-org-config) ; corrects (and improves) org-mode's native fontification
-  (message "CONFIG doom-themes... done")
   )
 
 (use-package solarized-theme
   :ensure
   :defer
-  :init
-  (message "INIT solarized-theme")
-  (defun solarized ()
-    (interactive)
-    (load-theme
-     (if (equal (car custom-enabled-themes) 'solarized-light)
-         'solarized-dark
-       'solarized-light)
-     t))
-  :config
-  (message "CONFIG solarized-theme")
-  (setq solarized-distinct-fringe-background t)
-  (setq solarized-high-contrast-mode-line t)  
-  (setq solarized-use-more-italic t)
-  ;; Draw the underline at the same place as the descent line.
-  (setq x-underline-at-descent-line t))
+  :custom
+  ((solarized-distinct-fringe-background t "make the fringe stand out from the background")
+   (solarized-high-contrast-mode-line t "make the modeline high contrast")  
+   (solarized-use-more-italic t "use more italics")
+   (x-underline-at-descent-line t "puts the underline below the font bottomline instead of the baseline")))
 
 ;; http://stackoverflow.com/questions/9900232/changing-color-themes-emacs-24-order-matters/15595000#15595000
 ;; (defadvice load-theme
 ;;   (before theme-dont-propagate activate)
 ;;   (mapc #'disable-theme custom-enabled-themes))
 
-(use-package rand-theme
-  :disabled
-  :ensure
-  :demand
-  :bind (("C-|" . rand-theme-iterate))
-  :config
-  (setq rand-theme-unwanted '(solarized hemisu base16-greenscreen))
-  (rand-theme))
-
 (use-package theme-looper
   :ensure
+  :after ivy
   :bind (("C-}" . theme-looper-enable-next-theme)
          ("C-{" . theme-looper-enable-previous-theme)
          ("C-\\" . theme-looper-enable-random-theme)
          ("C-|" . theme-looper-select-theme)
          ("C-M-|" . theme-looper-select-theme-from-all))
-  :commands (theme-looper-enable-theme)
-  :demand
   :config
   (defun my/disable-all-themes ()
     "Disables all the enabled color-themes"
     (interactive)
     (theme-looper--disable-all-themes))
-  ;; preferred theme: distinguished
-  ;; (theme-looper-set-favorite-themes-regexp "doom")
+  ;; (theme-looper-set-favorite-themes '(molokai distinguished *default*))
+  ;; (theme-looper-set-ignored-themes '(cobalt))
+  (theme-looper-set-favorite-themes-regexp
+   (string-join
+    '("gruvbox-" "molokai" "distinguished" "tomorrow" "doom" "*default*")
+    "\\|"))
+  (theme-looper-set-ignored-themes-regexp "solarized-gruvbox")
   ;; (theme-looper-enable-random-theme)
   )
 
 (use-package remember-last-theme
   :ensure
-  :disabled
-  :config (remember-last-theme-enable))
+  :config
+  (remember-last-theme-with-file-enable
+   (expand-file-name "last-theme.el" user-emacs-directory)))
 
 ;; (set-face-attribute font-lock-comment-face nil :slant 'italic)
 (set-face-attribute font-lock-comment-face nil :slant 'oblique)
