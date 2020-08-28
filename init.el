@@ -1004,7 +1004,7 @@ See `sort-words'."
    )
   :config
   (setq magit-diff-refine-hunk 'all)    ; Show fine differences for all displayed diff hunks
-  (setq magit-log-section-commit-count 60) ; How many recent commits to show in certain log sections
+  (setq magit-log-section-commit-count 80) ; How many recent commits to show in certain log sections
   (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
   )
 
