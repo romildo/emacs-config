@@ -1673,7 +1673,7 @@ See `sort-words'."
 ;(defalias 'perl-mode 'cperl-mode)
 
 ;;; ---------------------------------------------------------------------
-;;; ocaml
+;;; OCaml
 
 (use-package tuareg
   :ensure
@@ -1684,8 +1684,6 @@ See `sort-words'."
   (add-hook
    'tuareg-mode-hook
    (lambda ()
-     (message "MY tuareg-mode-hook")
-     
      ;; highlight trailing whitespace
      (setq show-trailing-whitespace t)
 
@@ -1695,15 +1693,13 @@ See `sort-words'."
      ;; (setq tuareg-use-smie nil)
      ;; (setq tuareg-match-clause-indent 3)
 
-     ;; shell command used to compile ocaml programs
-     (unless (or (file-exists-p "makefile")
-                 (file-exists-p "Makefile"))
-       (set (make-local-variable 'compile-command)
-            (concat "ocamlbuild "
-                    (file-name-base buffer-file-name)
-                    ".native")))
-
-     (message "MY tuareg-mode-hook END")
+     ;; ;; shell command used to compile ocaml programs
+     ;; (unless (or (file-exists-p "makefile")
+     ;;             (file-exists-p "Makefile"))
+     ;;   (set (make-local-variable 'compile-command)
+     ;;        (concat "ocamlbuild "
+     ;;                (file-name-base buffer-file-name)
+     ;;                ".native")))
      ))
 
   (add-hook
@@ -1714,22 +1710,18 @@ See `sort-words'."
 
 (use-package utop
   :ensure
-  :defer
   :hook (tuareg-mode . utop-minor-mode))
 
 (use-package ocp-indent
   ;; a simple tool and library to indent OCaml code
   :ensure
-  :defer
-  :config)
+  :defer)
 
 (use-package merlin
   :ensure
-  :defer
   :after company
   :hook ((tuareg-mode caml-mode) . merlin-mode)
   :config
-  (message "CONFIG merlin")
   ;; make company aware of merlin
   (add-to-list 'company-backends 'merlin-company-backend))
 
@@ -1773,6 +1765,18 @@ See `sort-words'."
   ;; :custom (ocamlformat-show-errors nil)
   :bind (:map tuareg-mode-map
               ("M-<iso-lefttab>" . ocamlformat)))
+
+;; Add opam emacs directory to your load-path by appending this to your .emacs:
+(let ((opam-share (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
+  (when (and opam-share (file-directory-p opam-share))
+    ;; Register Merlin
+    (add-to-list 'load-path (expand-file-name "emacs/site-lisp" opam-share))
+    (autoload 'merlin-mode "merlin" nil t nil)
+    ;; Automatically start it in OCaml buffers
+    (add-hook 'tuareg-mode-hook 'merlin-mode t)
+    (add-hook 'caml-mode-hook 'merlin-mode t)
+    ;; Use opam switch to lookup ocamlmerlin binary
+    (setq merlin-command 'opam)))
 
 ;;;----------------------------------------------------------------------------
 
