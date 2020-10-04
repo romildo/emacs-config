@@ -866,6 +866,7 @@ See `sort-words'."
 (use-package simple-modeline
   ;; A simple mode-line configuration for Emacs.
   :ensure
+  :disabled
   :hook (after-init . simple-modeline-mode))
 
 (use-package spaceline-config
