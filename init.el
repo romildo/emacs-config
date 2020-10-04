@@ -670,7 +670,7 @@ modified."
   ;; Highlight nested parentheses, brackets, and braces according to their depth.
   :ensure
   :diminish
-  :hook ((prod-mode . rainbow-delimiters-mode)))
+  :hook ((prog-mode . rainbow-delimiters-mode)))
 
 (use-package evil-search-highlight-persist
   ;; Persistent highlights after search
