@@ -285,7 +285,7 @@ of installed packages."
   :disabled
   :config
   (fringe-mode nil) ; restore default: 8 pixels
-  )
+  (set-face-attribute 'fringe nil :foreground "Black" :background "Wheat"))
 
 (use-package misc ; some nonstandard editing and utility commands
   :bind ([remap zap-to-char] . zap-up-to-char)) ; M-z
@@ -2083,8 +2083,6 @@ See `sort-words'."
 
 ;; (set-face-attribute font-lock-comment-face nil :slant 'italic)
 (set-face-attribute font-lock-comment-face nil :slant 'oblique)
-
-;; (set-face-attribute 'fringe nil :foreground "Black" :background "Wheat")
 
 (set-face-attribute 'mode-line nil :inherit 'variable-pitch)
 
