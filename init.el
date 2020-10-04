@@ -935,19 +935,21 @@ See `sort-words'."
 (use-package smart-mode-line
   ;; A powerful and beautiful mode-line for Emacs
   :ensure
+  :disabled
   :defer
   :config
   ;; (setq sml/theme 'respectful)
-  ;; (sml/setup))
+  ;; (sml/setup)
+  )
 
 (use-package smart-mode-line-atom-one-dark-theme
   ;; An atom-one-dark theme for smart-mode-line
   :ensure
+  :disabled
   :after smart-mode-line
   :config
   (setq sml/theme 'atom-one-dark)
   (sml/setup))
-  )
 
 (use-package uniquify ; make buffer names unique
   :custom
