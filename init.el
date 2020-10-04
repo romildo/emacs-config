@@ -2086,10 +2086,10 @@ See `sort-words'."
     (theme-looper--disable-all-themes))
   ;; (theme-looper-set-favorite-themes '(molokai distinguished *default*))
   ;; (theme-looper-set-ignored-themes '(cobalt))
-  (theme-looper-set-favorite-themes-regexp
-   (string-join
-    '("gruvbox-" "molokai" "distinguished" "tomorrow" "doom" "*default*")
-    "\\|"))
+  ;; (theme-looper-set-favorite-themes-regexp
+  ;;  (string-join
+  ;;   '("gruvbox-" "molokai" "distinguished" "tomorrow" "doom" "*default*")
+  ;;   "\\|"))
   (theme-looper-set-ignored-themes-regexp "solarized-gruvbox")
   ;; (theme-looper-enable-random-theme)
   )
