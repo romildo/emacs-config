@@ -1758,6 +1758,7 @@ See `sort-words'."
 (use-package flycheck-ocaml
   ;; OCaml support for Flycheck using Merlin
   :ensure
+  :disabled
   :after (flycheck merlin)
   :config
   ;; Disable Merlin's own error checking
