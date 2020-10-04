@@ -423,7 +423,6 @@ of installed packages."
   :disabled ; REMOVE LATER
   ;;:delight smartparens-mode
   :config
-  (message "CONFIG smartparens-config...")
   (smartparens-global-mode 1)
   ;; (show-smartparens-global-mode 1)
   ;; (setq
@@ -432,7 +431,7 @@ of installed packages."
   ;;  sp-autoskip-closing-pair 'always
   ;;  sp-base-key-bindings 'paredit
   ;;  sp-hybrid-kill-entire-symbol nil)
-  (message "...done"))
+  )
 
 (use-package savehist			; save minibuffer history
   :config
