@@ -2010,6 +2010,8 @@ See `sort-words'."
 (use-package liso-theme                     :ensure :defer) ; dark
 (use-package majapahit-theme                :ensure :defer) ; dark light
 (use-package material-theme                 :ensure :defer) ; dark light
+(use-package modus-operandi-theme           :ensure :defer) ;      light
+(use-package modus-vivendi-theme            :ensure :defer) ; dark
 (use-package moe-theme                      :ensure :defer) ; dark light
 (use-package molokai-theme                  :ensure :defer) ; dark
 (use-package monokai-pro-theme              :ensure :defer) ; dark
