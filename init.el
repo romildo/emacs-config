@@ -1534,15 +1534,30 @@ See `sort-words'."
 (use-package lsp-mode
   ;; client for the language server protocol
   :ensure
-  :hook ((c-mode c++-mode objc-mode) . lsp)
+  :hook (((c-mode c++-mode objc-mode tuareg-mode) . lsp-deferred)
+         (lsp-mode . lsp-enable-which-key-integration))
   )
 
 (use-package lsp-ui
+  ;; UI integrations for lsp-mode: higher level UI modules of lsp-mode
+  ;; (fancy sideline, popup documentation, VScode-like peek UI, etc.)
   :ensure
-  :disabled
   :after lsp-mode
+  ;; :commands lsp-ui-mode
   ;; :hook (lsp-mode . lsp-ui-mode)
   )
+
+(use-package lsp-ivy
+  ;; interactive ivy interface to the workspace symbol functionality
+  ;; offered by lsp-mode
+  :ensure
+  :after lsp-mode)
+
+(use-package lsp-treemacs
+  ;; Integration between lsp-mode and treemacs and implementation of
+  ;; treeview controls using treemacs as a tree renderer.
+  :ensure
+  :after lsp-mode)
 
 ;; (use-package ccls
 ;;   :ensure
