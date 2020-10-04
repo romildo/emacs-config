@@ -2697,11 +2697,27 @@ See `sort-words'."
 
 (use-package markdown-mode
   :ensure
-  :defer
+  :mode ("\\.md\\'" . gfm-mode)
+  :custom
+  (markdown-command "pandoc -t html5")
+  (markdown-fontify-code-blocks-natively t)
+  ;; :hook (markdown-mode . turn-on-orgtbl)
   :config
-  (setq markdown-command "pandoc")
-  (add-hook 'markdown-mode-hook #'turn-on-orgtbl))
+  (advice-add 'markdown-preview :around
+              (lambda (orig &rest args)
+                "Use Firefox as default browser."
+                (let ((browse-url-browser-function #'browse-url-firefox))
+                  (apply orig args))))
+  )
 
+(use-package edit-indirect
+  ;; Edit regions in separate buffers. Markdown relies on this package
+  ;; for to edit source code blocks like org mode.
+  :ensure
+  ;; :after expand-region ; to use region-prefix-map
+  ;; :bind (:map region-prefix-map
+  ;;             ("r" . edit-indirect-region))
+  :defer)
 
 ;; (use-package poly-markdown
 ;;   :ensure)
