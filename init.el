@@ -2103,7 +2103,7 @@ See `sort-words'."
 ;; (set-face-attribute font-lock-comment-face nil :slant 'italic)
 (set-face-attribute font-lock-comment-face nil :slant 'oblique)
 
-(set-face-attribute 'mode-line nil :inherit 'variable-pitch)
+;; (set-face-attribute 'mode-line nil :inherit 'variable-pitch)
 
 ;;; ---------------------------------------------------------------------------
 ;;; festival
