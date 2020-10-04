@@ -1134,14 +1134,11 @@ See `sort-words'."
   :bind ([(control .)] . company-complete)
   ;;:demand
   :hook (after-init . global-company-mode)
-  :init
-  (message "COMPANY INIT ...")
   :config
-  (message "COMPANY CONFIG ...")
-  (setq company-idle-delay 0.3)              ; idle delay in seconds until completion starts automatically ; default: 0.5
+  (setq company-idle-delay 0.0)              ; idle delay in seconds until completion starts automatically ; default: 0.5
   (setq company-echo-delay 0)                ; default: 0.01 ; remove annoying blinking
-  (setq company-minimum-prefix-length 1)     ; minimum prefix length for idle completion ; default: 3
-  (setq company-show-numbers t)              ; show numbers for easy selection
+  (setq company-minimum-prefix-length 2)     ; minimum prefix length for idle completion ; default: 3
+  (setq company-show-numbers t)              ; show quick-access numbers
   (setq company-tooltip-limit 20)            ; maximum number of candidates in the tooltip ; default: 10
   (setq company-tooltip-align-annotations t) ; align annotations to the right tooltip border
 
