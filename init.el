@@ -336,17 +336,15 @@ of installed packages."
   (next-error-recenter -2)
   )
 
-(use-package linum
-  ;; Display of line numbers in the left margin
+(use-package display-line-numbers
   :config
-  ;; (setq linum-format 'dynamic)
-  (global-linum-mode 1)
-  (set-face-attribute 'linum nil
-                      :family 'sans
-                      :width 'condensed
-                      :height 0.80
-                      :weight 'light
-                      :slant 'oblique))
+  ;; (set-face-attribute 'line-number nil
+  ;;                     :family 'mono
+  ;;                     :width 'condensed
+  ;;                     :height 0.80
+  ;;                     :weight 'light
+  ;;                     :slant 'oblique)
+  (global-display-line-numbers-mode))
 
 
 (use-package hl-line
