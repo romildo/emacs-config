@@ -1696,45 +1696,45 @@ See `sort-words'."
   :defer
   :mode (("\\.ml[ily]?$" . tuareg-mode)
          ("\\.topml$" . tuareg-mode))
-  :config
-  (add-hook
-   'tuareg-mode-hook
-   (lambda ()
-     ;; highlight trailing whitespace
-     (setq show-trailing-whitespace t)
+  :hook
+  ((tuareg-mode
+    . (lambda ()
+        ;; highlight trailing whitespace
+        (setq show-trailing-whitespace t)
 
-     ;; visually indicate empty lines after the buffer end
-     (setq indicate-empty-lines t)
-     
-     ;; (setq tuareg-use-smie nil)
-     ;; (setq tuareg-match-clause-indent 3)
+        ;; visually indicate empty lines after the buffer end
+        (setq indicate-empty-lines t)
 
-     ;; ;; shell command used to compile ocaml programs
-     ;; (unless (or (file-exists-p "makefile")
-     ;;             (file-exists-p "Makefile"))
-     ;;   (set (make-local-variable 'compile-command)
-     ;;        (concat "ocamlbuild "
-     ;;                (file-name-base buffer-file-name)
-     ;;                ".native")))
-     ))
+        ;; (setq tuareg-use-smie nil)
+        ;; (setq tuareg-match-clause-indent 3)
 
-  (add-hook
-   'tuareg-interactive-mode-hook
-   (lambda ()
-     (local-set-key [(control return)] 'comint-send-input)))
+        ;; ;; shell command used to compile ocaml programs
+        ;; (unless (or (file-exists-p "makefile")
+        ;;             (file-exists-p "Makefile"))
+        ;;   (set (make-local-variable 'compile-command)
+        ;;        (concat "ocamlbuild "
+        ;;                (file-name-base buffer-file-name)
+        ;;                ".native")))
+        ))
+   (tuareg-interactive-mode
+    . (lambda ()
+        (local-set-key [(control return)] 'comint-send-input))))
   )
 
 (use-package utop
   :ensure
+  :disabled
   :hook (tuareg-mode . utop-minor-mode))
 
 (use-package ocp-indent
   ;; a simple tool and library to indent OCaml code
   :ensure
+  :disabled
   :defer)
 
 (use-package merlin
   :ensure
+  :disabled
   :after company
   :hook ((tuareg-mode caml-mode) . merlin-mode)
   :config
