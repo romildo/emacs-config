@@ -611,6 +611,12 @@ modified."
 (global-set-key [(meta \[)] 'align)
 
 
+;; Move point N words to the right (to the left if N is negative),
+;; stopping at the beginning of the word
+;; It was originally bound to right-word
+(global-set-key [M-right] 'forward-to-word)
+
+
 ;; Open terminal from emacs
 (global-set-key [(control x) ?t] (kbd "M-! gnome-terminal RET"))
 
