@@ -922,11 +922,8 @@ See `sort-words'."
   (telephone-line-mode t))
 
 (use-package doom-modeline
-  ;; A minimal and modern mode-line. Requires the fonts included with
-  ;; all-the-icons to be installed. Strongly recommend to use
-  ;; doom-themes at the same time.
+  ;; A fancy and fast mode-line inspired by minimalism design.
   :ensure
-  :disabled
   :hook
   (after-init . doom-modeline-mode)
   :custom
