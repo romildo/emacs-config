@@ -906,6 +906,7 @@ See `sort-words'."
 
 (use-package telephone-line
   ;; A new implementation of Powerline for Emacs
+  ;; Requires the fonts included with all-the-icons
   :ensure
   :disabled
   :config
