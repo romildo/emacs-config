@@ -76,11 +76,12 @@ LOAD-DURATION is the time taken in milliseconds to load FEATURE.")
 
 ;; Make sure all my required packages are installed
 (defun my/ensure-packages-installed (&rest packages)
-  "Assure every package in PACKAGES is installed.
-Asks for permission to install the missing ones.  Return a list
-of installed packages."
+  "Assure every package in PACKAGES is installed. Asks for
+permission to install the missing ones.  Return a list of
+installed packages."
   (setq packages
-        (delq nil (mapcar (lambda (p) (and (not (package-installed-p p)) p)) packages)))
+        (delq nil (mapcar (lambda (p) (and (not (package-installed-p p)) p))
+                          packages)))
   (when packages
     (when (yes-or-no-p (format "Missing packages: %s\nInstall them? " packages))
       (message "Emacs is now refreshing its package database...")
@@ -94,16 +95,15 @@ of installed packages."
           (message " %s done." p)))
       packages)))
 
-(when (require 'package nil 'noerror)
-  (setq package-enable-at-startup nil)
-  (setq package-check-signature (when (executable-find "gpg") 'allow-unsigned))
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-  (add-to-list 'package-archives '("user42" . "https://download.tuxfamily.org/user42/elpa/packages/") t)
-  (package-initialize)
-  ;; (package-initialize 'no-activate)
-  (my/ensure-packages-installed 'use-package))
-
+(require 'package)
+(setq package-enable-at-startup nil)
+(setq package-check-signature (when (executable-find "gpg") 'allow-unsigned))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("user42" . "https://download.tuxfamily.org/user42/elpa/packages/") t)
+(package-initialize)
+;; (package-initialize 'no-activate)
+(my/ensure-packages-installed 'use-package)
 
 
 ;; to display a list of packages: M-x list-packages
@@ -117,9 +117,8 @@ of installed packages."
 ;;   g: revert
 ;;   r: refresh the list from server
 
-;; use-package ==============================================================
 (eval-when-compile
-  (require 'use-package nil 'noerror))
+  (require 'use-package))
 (setq use-package-verbose t)
 
 ;;----------------------------------------------------------------------------
@@ -131,6 +130,12 @@ of installed packages."
   ;; :disabled
   ;; :hook (after-init . benchmark-init/deactivate)
   )
+
+(use-package async
+  :ensure t
+  :defer
+  :init (setq async-bytecomp-allowed-packages '(all))
+  :config (async-bytecomp-package-mode 1))
 
 (use-package paradox
   ;; modernized package menu
@@ -223,7 +228,7 @@ of installed packages."
   (scroll-preserve-screen-position 'always)
   (visible-bell t "try to flash the frame to represent a bell")
   (load-prefer-newer t "`load' prefers the newest version of a file")
-  (truncate-lines nil "do not truncate long lines instead of line wrapping them")
+  ;; (truncate-lines nil "do not truncate long lines instead of line wrapping them")
 
   ;; How many columns away from the window edge point is allowed to get
   ;; before automatic hscrolling will horizontally scroll the window.
@@ -338,12 +343,12 @@ of installed packages."
 
 (use-package display-line-numbers
   :config
-  ;; (set-face-attribute 'line-number nil
-  ;;                     :family 'mono
-  ;;                     :width 'condensed
-  ;;                     :height 0.80
-  ;;                     :weight 'light
-  ;;                     :slant 'oblique)
+  (set-face-attribute 'line-number nil
+                      :family 'mono
+                      :width 'condensed
+                      :height 0.90
+                      :weight 'light
+                      :slant 'oblique)
   (global-display-line-numbers-mode))
 
 
@@ -1202,7 +1207,7 @@ See `sort-words'."
   :ensure
   :defer
   ;; :delight (yas-minor-mode . "Ⓨ")
-  :init (add-hook 'prog-mode-hook #'yas-minor-mode)
+  :hook (prog-mode . yas-minor-mode)
   :config (yas-reload-all))
 
 ;;; ---------------------------------------------------------------------------
@@ -1382,9 +1387,22 @@ See `sort-words'."
 (use-package tex-site
   :ensure auctex
   :defer
-  :hook (LaTeX-mode-hook . (lambda () (message "HERE...") (local-unset-key "\"")))
-  ;; :config
+  :hook
+  (LaTeX-mode . (lambda () (local-unset-key "\"")))
+  :custom
+  (LaTeX-item-indent 0)
+  :config
   ;; (setq-default TeX-master nil) ; Query for master file.
+  )
+
+(use-package latex
+  :ensure auctex
+  :config
+  (add-to-list 'LaTeX-font-list '(?\C-k "\\alert{" "}"))
+  (add-to-list 'LaTeX-font-list '(?\C-v "\\verb|" "|"))
+  (add-to-list 'LaTeX-font-list '(?\C-p "\\pyginline|" "|"))
+  ;; (add-to-list 'LaTeX-verbatim-macros-with-delims "pyginline")
+  ;; (add-to-list 'LaTeX-verbatim-environments "pygmentex")
   )
 
 (use-package auctex-latexmk
@@ -1462,7 +1480,7 @@ See `sort-words'."
   :defer
   :config
   ;;
-  ;; (setq-default c-basic-offset 3)
+  (setq-default c-basic-offset 4)
   
   ;; new key bindings
   (define-key c-mode-base-map [(control x) ?c] 'compile)
@@ -1473,6 +1491,19 @@ See `sort-words'."
   ;; C-x h M-C-\	mark-whole-buffer indent-region
   (push '(c-mode . "ellemtel") c-default-style)
   (push '(c++-mode . "ellemtel") c-default-style)
+
+  (c-add-style
+   "e"
+   '("gnu"
+     (show-trailing-whitespace t)
+     (indent-tabs-mode . nil)
+     (tab-width . 8)
+     (c-offsets-alist . ((defun-block-intro . 3)
+                         (statement-block-intro . 3)
+                         (case-label . 1)
+                         (statement-case-intro . 3)
+                         (inclass . 3)
+                         ))))
   )
 
 (use-package google-c-style
@@ -1534,8 +1565,16 @@ See `sort-words'."
 (use-package lsp-mode
   ;; client for the language server protocol
   :ensure
-  :hook (((c-mode c++-mode objc-mode tuareg-mode) . lsp-deferred)
-         (lsp-mode . lsp-enable-which-key-integration))
+  :hook (
+         (c-mode . lsp-deferred)
+         (c++-mode . lsp-deferred)
+         (objc-mode . lsp-deferred)
+         (haskell-mode . lsp-deferred)
+         (haskell-literate-mode-hook . lsp-deferred)
+         (tuareg-mode . lsp-deferred)
+         ;;
+         (lsp-mode . lsp-enable-which-key-integration)
+         )
   )
 
 (use-package lsp-ui
@@ -1586,27 +1625,29 @@ See `sort-words'."
   ;; a Haskell editing mode
   :ensure
   :defer
-  :bind (:map haskell-mode-map
-              ;; ("F8" . haskell-navigate-imports)
-         ;;      ("C-c m i s" . haskell-sort-imports)
-         ;;      ("C-c m i a" . haskell-align-imports)
-         ;;      ("C-c C-c" . haskell-compile)
-         ;; :map haskell-cabal-mode-map
-         ;;      ("C-c C-c" . haskell-compile)
-         ;; ;; Recommended Haskell Mode bindings, see
-         ;; ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html
-         )
-  :hook ((haskell-mode . flycheck-mode)
-         (haskell-mode . interactive-haskell-mode)
-         (haskell-mode . (lambda ()
-                           ;; completion support: in order to provide candidates for
-                           ;; identifiers defined locally in let and where blocks combine
-                           ;; completion candidates from completion-at-point function
-                           ;; (company-capf backend) and dynamic abbrevs
-                           (set (make-local-variable 'company-backends)
-                                (append '((company-capf company-dabbrev-code))
-                                        company-backends)))))
-  :config (setq haskell-process-log t))
+  ;; :bind (:map haskell-mode-map
+  ;;             ;; ("F8" . haskell-navigate-imports)
+  ;;        ;;      ("C-c m i s" . haskell-sort-imports)
+  ;;        ;;      ("C-c m i a" . haskell-align-imports)
+  ;;        ;;      ("C-c C-c" . haskell-compile)
+  ;;        ;; :map haskell-cabal-mode-map
+  ;;        ;;      ("C-c C-c" . haskell-compile)
+  ;;        ;; ;; Recommended Haskell Mode bindings, see
+  ;;        ;; ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html
+  ;;        )
+  ;; :hook
+  ;; ((haskell-mode . flycheck-mode)
+  ;;  (haskell-mode . interactive-haskell-mode)
+  ;;  (haskell-mode . (lambda ()
+  ;;                    ;; completion support: in order to provide candidates for
+  ;;                    ;; identifiers defined locally in let and where blocks combine
+  ;;                    ;; completion candidates from completion-at-point function
+  ;;                    ;; (company-capf backend) and dynamic abbrevs
+  ;;                    (set (make-local-variable 'company-backends)
+  ;;                         (append '((company-capf company-dabbrev-code))
+  ;;                                 company-backends)))))
+  ;; :config (setq haskell-process-log t)
+  )
 
 (use-package dante
   ;; development mode for Haskell
@@ -1619,6 +1660,17 @@ See `sort-words'."
                          (flycheck-add-next-checker
                           'haskell-dante
                           '(warning . haskell-hlint))))))
+
+
+(use-package lsp-haskell
+  ;; Interacting with a Haskell language server such as
+  ;; haskell-language-server or ghcide using Microsoft's Language
+  ;; Server Protocol.
+  :ensure
+  :config
+  (setq lsp-haskell-server-path "ghcide")
+  (setq lsp-haskell-server-args '())
+  )
 
 ;;; ---------------------------------------------------------------------
 
@@ -1768,11 +1820,7 @@ See `sort-words'."
 
 ;; provided by dune
 (use-package dune
-  :defer
-  :mode (("^dune$" . dune-mode)
-         ("^dune-project$" . dune-mode)
-         ("^dune-workspace$" . dune-mode))
-  )
+  :mode (("\\(?:\\`\\|/\\)dune\\(?:\\.inc\\|-project\\)?\\'" . dune-mode)))
 
 (use-package dune-flymake
   :after (:all dune flymake))
@@ -1872,7 +1920,8 @@ See `sort-words'."
   ((lua-mode . folding-mode)
    (lua-mode . hs-minor-mode))
   :custom
-  (lua-indent-level 4)
+  (lua-indent-level 2 "amount by which Lua subexpressions are indented")
+  (lua-indent-nested-block-content-align nil "align the content of nested blocks with the open parenthesis")
   (lua-documentation-function 'eww)
   :config
   (folding-add-to-marks-list 'lua-mode "-- {{{" "-- }}}" nil t))
@@ -1968,108 +2017,108 @@ See `sort-words'."
 ;;; ---------------------------------------------------------------------------
 ;;; Themes
 
-(use-package abyss-theme                    :ensure :defer) ; dark
 (use-package alect-themes                   :ensure :defer) ; dark light
-(use-package anti-zenburn-theme             :ensure :defer) ;      light
+;; (use-package anti-zenburn-theme             :ensure :defer) ;      light
 (use-package apropospriate-theme            :ensure :defer) ; dark light
 (use-package arc-dark-theme                 :ensure :defer) ; dark
-(use-package avk-emacs-themes               :ensure :defer) ; dark light
-(use-package ayu-theme                      :ensure :defer) ; dark light
-(use-package berrys-theme                   :ensure :defer) ;      light
-(use-package badwolf-theme                  :ensure :defer) ; dark
-(use-package brutalist-theme                :ensure :defer) ;      light
-(use-package challenger-deep-theme          :ensure :defer) ; dark
-(use-package chyla-theme                    :ensure :defer) ;      light
-(use-package cloud-theme                    :ensure :defer) ;      light
-(use-package color-theme-sanityinc-tomorrow :ensure :defer) ; dark light
-(use-package danneskjold-theme              :ensure :defer) ; dark
-(use-package dark-mint-theme                :ensure :defer) ; dark
-(use-package doneburn-theme                 :ensure :defer) ; light
-(use-package eink-theme                     :ensure :defer) ;      light
-(use-package exotica-theme                  :ensure :defer) ; dark
-(use-package faff-theme                     :ensure :defer) ;      light
-(use-package fantom-theme                   :ensure :defer) ; dark
-(use-package flatfluc-theme                 :ensure :defer) ;      light
-(use-package flatui-dark-theme              :ensure :defer) ; dark
-(use-package flucui-themes                  :ensure :defer) ; dark light
-(use-package forest-blue-theme              :ensure :defer) ; dark
-(use-package github-modern-theme            :ensure :defer) ; light
-(use-package goose-theme                    :ensure :defer) ; light
-(use-package grayscale-theme                :ensure :defer) ; dark
-(use-package gruvbox-theme                  :ensure :defer) ; dark
-(use-package hamburg-theme                  :ensure :defer) ; dark
-(use-package horizon-theme                  :ensure :defer) ; dark
-(use-package humanoid-themes                :ensure :defer) ; dark light
-(use-package idea-darkula-theme             :ensure :defer) ; dark
-(use-package intellij-theme                 :ensure :defer) ;      light
-(use-package jbeans-theme                   :ensure :defer) ; dark
-(use-package kaolin-themes                  :ensure :defer) ; dark light
-(use-package kooten-theme                   :ensure :defer) ; dark
-(use-package lab-themes                     :ensure :defer) ; dark light
-(use-package labburn-theme                  :ensure :defer) ; dark
-(use-package liso-theme                     :ensure :defer) ; dark
-(use-package majapahit-theme                :ensure :defer) ; dark light
-(use-package material-theme                 :ensure :defer) ; dark light
-(use-package modus-operandi-theme           :ensure :defer) ;      light
-(use-package modus-vivendi-theme            :ensure :defer) ; dark
-(use-package moe-theme                      :ensure :defer) ; dark light
-(use-package molokai-theme                  :ensure :defer) ; dark
-(use-package monokai-pro-theme              :ensure :defer) ; dark
-(use-package mood-one-theme                 :ensure :defer) ; dark
-(use-package naysayer-theme                 :ensure :defer) ; dark
-(use-package nimbus-theme                   :ensure :defer) ; dark
-(use-package nord-theme                     :ensure :defer) ; dark
-(use-package nubox                          :ensure :defer) ; dark light tty
-(use-package one-themes                     :ensure :defer) ; dark light
-(use-package organic-green-theme            :ensure :defer) ;      light
-(use-package panda-theme                    :ensure :defer) ; dark
-(use-package parchment-theme                :ensure :defer) ;      light
-(use-package planet-theme                   :ensure :defer) ; dark
-(use-package purp-theme                     :ensure :defer) ; 
-(use-package qtcreator-theme                :ensure :defer) ;      light
-(use-package reykjavik-theme                :ensure :defer) ; dark
-(use-package seoul256-theme                 :ensure :defer) ; dark light
-(use-package silkworm-theme                 :ensure :defer) ;      light
-(use-package snazzy-theme                   :ensure :defer) ; dark
-(use-package spacemacs-theme                :ensure :defer) ; dark
-(use-package srcery-theme                   :ensure :defer) ; dark
-(use-package sublime-themes                 :ensure :defer)
-(use-package sunburn-theme                  :ensure :defer) ; dark
-(use-package suscolors-theme                :ensure :defer) ; dark
-(use-package tao-theme                      :ensure :defer) ; 
-(use-package toxi-theme                     :ensure :defer) ; dark
-(use-package tron-legacy-theme              :ensure :defer) ; dark
-(use-package vs-dark-theme                  :ensure :defer) ; dark
-(use-package vs-light-theme                 :ensure :defer) ;      light
-(use-package vscdark-theme                  :ensure :defer) ; dark
-(use-package vscode-dark-plus-theme         :ensure :defer) ; dark
-(use-package yoshi-theme                    :ensure :defer) ; dark
-(use-package zenburn-theme                  :ensure :defer) ; dark
-(use-package zeno-theme                     :ensure :defer) ; dark
-(use-package zerodark-theme                 :ensure :defer) ; dark
+;; (use-package avk-emacs-themes               :ensure :defer) ; dark light
+;; (use-package ayu-theme                      :ensure :defer) ; dark light
+;; (use-package berrys-theme                   :ensure :defer) ;      light
+;; (use-package badwolf-theme                  :ensure :defer) ; dark
+;; (use-package brutalist-theme                :ensure :defer) ;      light
+;; (use-package challenger-deep-theme          :ensure :defer) ; dark
+;; (use-package chyla-theme                    :ensure :defer) ;      light
+;; (use-package cloud-theme                    :ensure :defer) ;      light
+;; (use-package color-theme-sanityinc-tomorrow :ensure :defer) ; dark light
+;; (use-package danneskjold-theme              :ensure :defer) ; dark
+;; (use-package dark-mint-theme                :ensure :defer) ; dark
+;; (use-package doneburn-theme                 :ensure :defer) ;      light
+(use-package dream-theme                    :ensure :defer) ; dark
+;; (use-package eink-theme                     :ensure :defer) ;      light
+;; (use-package exotica-theme                  :ensure :defer) ; dark
+;; (use-package faff-theme                     :ensure :defer) ;      light
+;; (use-package fantom-theme                   :ensure :defer) ; dark
+;; (use-package flatfluc-theme                 :ensure :defer) ;      light
+;; (use-package flatui-dark-theme              :ensure :defer) ; dark
+;; (use-package flucui-themes                  :ensure :defer) ; dark light
+;; (use-package forest-blue-theme              :ensure :defer) ; dark
+;; (use-package github-modern-theme            :ensure :defer) ; light
+(use-package gotham-theme            :ensure :defer) ; dark
+;; (use-package goose-theme                    :ensure :defer) ; light
+;; (use-package grayscale-theme                :ensure :defer) ; dark
+;; (use-package gruvbox-theme                  :ensure :defer) ; dark
+;; (use-package hamburg-theme                  :ensure :defer) ; dark
+;; (use-package horizon-theme                  :ensure :defer) ; dark
+;; (use-package humanoid-themes                :ensure :defer) ; dark light
+;; (use-package idea-darkula-theme             :ensure :defer) ; dark
+;; (use-package intellij-theme                 :ensure :defer) ;      light
+;; (use-package jbeans-theme                   :ensure :defer) ; dark
+;; (use-package kaolin-themes                  :ensure :defer) ; dark light
+;; (use-package kooten-theme                   :ensure :defer) ; dark
+;; (use-package lab-themes                     :ensure :defer) ; dark light
+;; (use-package labburn-theme                  :ensure :defer) ; dark
+;; (use-package liso-theme                     :ensure :defer) ; dark
+;; (use-package majapahit-theme                :ensure :defer) ; dark light
+;; (use-package material-theme                 :ensure :defer) ; dark light
+;; (use-package modus-themes                   :ensure :defer) ; dark light
+;; (use-package moe-theme                      :ensure :defer) ; dark light
+;; (use-package molokai-theme                  :ensure :defer) ; dark
+;; (use-package monokai-pro-theme              :ensure :defer) ; dark
+;; (use-package mood-one-theme                 :ensure :defer) ; dark
+;; (use-package naysayer-theme                 :ensure :defer) ; dark
+;; (use-package nimbus-theme                   :ensure :defer) ; dark
+;; (use-package nord-theme                     :ensure :defer) ; dark
+;; (use-package nubox                          :ensure :defer) ; dark light tty
+;; (use-package one-themes                     :ensure :defer) ; dark light
+;; (use-package organic-green-theme            :ensure :defer) ;      light
+;; (use-package panda-theme                    :ensure :defer) ; dark
+;; (use-package parchment-theme                :ensure :defer) ;      light
+;; (use-package planet-theme                   :ensure :defer) ; dark
+;; (use-package purp-theme                     :ensure :defer) ; 
+;; (use-package qtcreator-theme                :ensure :defer) ;      light
+;; (use-package reykjavik-theme                :ensure :defer) ; dark
+;; (use-package seoul256-theme                 :ensure :defer) ; dark light
+;; (use-package silkworm-theme                 :ensure :defer) ;      light
+;; (use-package snazzy-theme                   :ensure :defer) ; dark
+;; (use-package spacemacs-theme                :ensure :defer) ; dark
+;; (use-package srcery-theme                   :ensure :defer) ; dark
+;; (use-package sublime-themes                 :ensure :defer)
+;; (use-package sunburn-theme                  :ensure :defer) ; dark
+;; (use-package suscolors-theme                :ensure :defer) ; dark
+;; (use-package tao-theme                      :ensure :defer) ; 
+;; (use-package toxi-theme                     :ensure :defer) ; dark
+;; (use-package tron-legacy-theme              :ensure :defer) ; dark
+;; (use-package vs-dark-theme                  :ensure :defer) ; dark
+;; (use-package vs-light-theme                 :ensure :defer) ;      light
+;; (use-package vscdark-theme                  :ensure :defer) ; dark
+;; (use-package vscode-dark-plus-theme         :ensure :defer) ; dark
+;; (use-package yoshi-theme                    :ensure :defer) ; dark
+;; (use-package zenburn-theme                  :ensure :defer) ; dark
+;; (use-package zeno-theme                     :ensure :defer) ; dark
+;; (use-package zerodark-theme                 :ensure :defer) ; dark
 
-(use-package doom-themes
-  :ensure
-  :defer
-  :config
-  (doom-themes-visual-bell-config) ; enable flashing the mode-line on error
-  (doom-themes-neotree-config) ; enable custom neotree theme (all-the-icons fonts must be installed!)
-  (doom-themes-org-config) ; corrects (and improves) org-mode's native fontification
-  )
+;; (use-package doom-themes
+;;   :ensure
+;;   :defer
+;;   :config
+;;   (doom-themes-visual-bell-config) ; enable flashing the mode-line on error
+;;   (doom-themes-neotree-config) ; enable custom neotree theme (all-the-icons fonts must be installed!)
+;;   (doom-themes-org-config) ; corrects (and improves) org-mode's native fontification
+;;   )
 
-(use-package solarized-theme
-  :ensure
-  :defer
-  :custom
-  ((solarized-distinct-fringe-background t "make the fringe stand out from the background")
-   (solarized-high-contrast-mode-line t "make the modeline high contrast")  
-   (solarized-use-more-italic t "use more italics")
-   (x-underline-at-descent-line t "puts the underline below the font bottomline instead of the baseline")))
+;; (use-package solarized-theme
+;;   :ensure
+;;   :defer
+;;   :custom
+;;   ((solarized-distinct-fringe-background t "make the fringe stand out from the background")
+;;    (solarized-high-contrast-mode-line t "make the modeline high contrast")  
+;;    (solarized-use-more-italic t "use more italics")
+;;    (x-underline-at-descent-line t "puts the underline below the font bottomline instead of the baseline")))
 
-;; http://stackoverflow.com/questions/9900232/changing-color-themes-emacs-24-order-matters/15595000#15595000
-;; (defadvice load-theme
-;;   (before theme-dont-propagate activate)
-;;   (mapc #'disable-theme custom-enabled-themes))
+;; ;; http://stackoverflow.com/questions/9900232/changing-color-themes-emacs-24-order-matters/15595000#15595000
+;; ;; (defadvice load-theme
+;; ;;   (before theme-dont-propagate activate)
+;; ;;   (mapc #'disable-theme custom-enabled-themes))
 
 (use-package theme-looper
   :ensure
@@ -2080,17 +2129,13 @@ See `sort-words'."
          ("C-|" . theme-looper-select-theme)
          ("C-M-|" . theme-looper-select-theme-from-all))
   :config
-  (defun my/disable-all-themes ()
-    "Disables all the enabled color-themes"
-    (interactive)
-    (theme-looper--disable-all-themes))
   ;; (theme-looper-set-favorite-themes '(molokai distinguished *default*))
   ;; (theme-looper-set-ignored-themes '(cobalt))
   ;; (theme-looper-set-favorite-themes-regexp
   ;;  (string-join
   ;;   '("gruvbox-" "molokai" "distinguished" "tomorrow" "doom" "*default*")
   ;;   "\\|"))
-  (theme-looper-set-ignored-themes-regexp "solarized-gruvbox")
+  ;; (theme-looper-set-ignored-themes-regexp "solarized-gruvbox")
   ;; (theme-looper-enable-random-theme)
   )
 
@@ -2099,6 +2144,12 @@ See `sort-words'."
   :config
   (remember-last-theme-with-file-enable
    (expand-file-name "last-theme.el" user-emacs-directory)))
+
+(use-package theme-anchor
+  ;; Apply a custom theme to current Emacs buffer only 
+  :ensure
+  :defer
+  :commands (theme-anchor-buffer-local))
 
 ;; (set-face-attribute font-lock-comment-face nil :slant 'italic)
 (set-face-attribute font-lock-comment-face nil :slant 'oblique)
@@ -2359,7 +2410,7 @@ See `sort-words'."
   :bind (:map nix-mode-map ("C-c C-f" . nixpkgs-fmt)) )
 
 ;;;----------------------------------------------------------------------------
-;;; tabbar
+;;; tabs
 
 ;; (when (require 'tabbar nil 'noerror)
 ;;   (tabbar-mode)
@@ -2482,6 +2533,7 @@ See `sort-words'."
 
 (use-package tabbar-ruler
   :ensure
+  :disabled
   :bind ("C-c t" . tabbar-ruler-move)
   :init
   (setq tabbar-ruler-global-tabbar t)    ; get tabbar
@@ -2492,6 +2544,18 @@ See `sort-words'."
   :config
   (tabbar-install-faces)
   )
+
+(use-package centaur-tabs
+  :ensure
+  :disabled
+  :demand
+  :custom
+  (centaur-tabs-style "bar")
+  :config
+  (centaur-tabs-mode t)
+  :bind
+  ("C-<prior>" . centaur-tabs-backward)
+  ("C-<next>" . centaur-tabs-forward))
 
 ;;; ---------------------------------------------------------------------------
 
@@ -2857,6 +2921,10 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 ;;;----------------------------------------------------------------------------
 
+(use-package php-mode
+  :ensure
+  :defer)
+
 (use-package udev-mode
   ;; Editing udev rules files 
   :ensure
@@ -2895,8 +2963,6 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :defer
   :mode ("/debian/control\\'" . debian-control-mode))
 
-(use-package debian-changelog-mode :ensure)
-
 (use-package mode-icons
   ;; Show icons instead of mode names
   :ensure
@@ -2926,6 +2992,11 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :ensure
   :hook (dired-mode . diredfl-mode))
 
+(use-package dired-du
+  ;; display the recursive size of directories in dired
+  :ensure
+  ;; :hook (dired-mode . dired-du-mode)
+  :after dired)
 
 
 ;; dired
@@ -3000,7 +3071,9 @@ XLFD defaults to the selected frame's font, or the default face's font."
 ;;;----------------------------------------------------------------------------
 
 (use-package vala-mode
-  :ensure)
+  :disabled ;;;;;; TODO is giving error about vala-multiline-strings
+  :ensure
+  :defer)
 
 ;;----------------------------------------------------------------------------
 ;; Starts server for (among others) emacsclient
