@@ -342,15 +342,19 @@ installed packages."
   )
 
 (use-package display-line-numbers
+  :custom-face
   :config
+  ;; maybe use custom-face ?
   (set-face-attribute 'line-number nil
-                      :family 'mono
+                      ;; :family "Monospace"
                       :width 'condensed
-                      :height 0.90
-                      :weight 'light
+                      :height 0.8
+                      :weight 'thin
                       :slant 'oblique)
+  (set-face-attribute 'line-number-current-line nil
+                      :inherit 'line-number
+                      :weight 'bold)
   (global-display-line-numbers-mode))
-
 
 (use-package hl-line
   ;; Toggle line highlighting in all buffers
@@ -1396,11 +1400,14 @@ See `sort-words'."
   )
 
 (use-package latex
+  ;; :disabled ;;; ERROR
   :ensure auctex
+  :defer
   :config
   (add-to-list 'LaTeX-font-list '(?\C-k "\\alert{" "}"))
   (add-to-list 'LaTeX-font-list '(?\C-v "\\verb|" "|"))
   (add-to-list 'LaTeX-font-list '(?\C-p "\\pyginline|" "|"))
+  (add-to-list 'LaTeX-font-list '(?\C-m "\\mintinline{c++}{" "}"))
   ;; (add-to-list 'LaTeX-verbatim-macros-with-delims "pyginline")
   ;; (add-to-list 'LaTeX-verbatim-environments "pygmentex")
   )
@@ -1409,14 +1416,16 @@ See `sort-words'."
   ;; adds LatexMk support to AUCTeX
   :ensure
   :defer
-  :after latex
   :init
   ;; M-x TeX-command-master (or C-c C-c) to use LatexMk command to compile TeX
   ;; source.
-  (auctex-latexmk-setup)
   (setq auctex-latexmk-inherit-TeX-PDF-mode t)
-  (add-hook 'TeX-mode-hook (lambda ()
-                             (setq TeX-command-default "LatexMk"))))
+  :config
+  (auctex-latexmk-setup)
+  :hook
+  (TeX-mode . (lambda () (setq TeX-command-default "LatexMk")))
+  (LaTeX-mode . (lambda () (setq TeX-command-default "LatexMk")))
+  )
 
 (use-package company-auctex
   :ensure
@@ -1480,7 +1489,7 @@ See `sort-words'."
   :defer
   :config
   ;;
-  (setq-default c-basic-offset 4)
+  (setq-default c-basic-offset 2)
   
   ;; new key bindings
   (define-key c-mode-base-map [(control x) ?c] 'compile)
@@ -1517,6 +1526,14 @@ See `sort-words'."
   :ensure
   :after cc-mode
   :hook (c++-mode . modern-c++-font-lock-mode))
+
+(use-package clang-format
+  :when (executable-find "clang-format")
+  :ensure
+  :defer
+  :bind ([C-c C-f] . clang-format-region)
+  :custom (clang-format-style "llvm")
+  )
 
 (use-package eclim ;  an interface to the Eclipse IDE
   :disabled
@@ -1818,12 +1835,20 @@ See `sort-words'."
   ;; Enable Flycheck checker
   (flycheck-ocaml-setup))
 
-;; provided by dune
 (use-package dune
-  :mode (("\\(?:\\`\\|/\\)dune\\(?:\\.inc\\|-project\\)?\\'" . dune-mode)))
+  ;; Integration with the dune build system
+  :ensure
+  :defer)
 
 (use-package dune-flymake
+  ;; Flymake support for dune files
+  ;; Provided by dune ?
   :after (:all dune flymake))
+
+(use-package dune-format
+  ;; Reformat OCaml's dune files automatically
+  :ensure
+  :bind (:map dune-mode-map ("C-c C-f" . dune-format)))
 
 (use-package ocamlformat
   ;; :straight (:host github :repo "ocaml-ppx/ocamlformat" :files ("emacs/ocamlformat.el"))
@@ -2060,7 +2085,6 @@ See `sort-words'."
 ;; (use-package liso-theme                     :ensure :defer) ; dark
 ;; (use-package majapahit-theme                :ensure :defer) ; dark light
 ;; (use-package material-theme                 :ensure :defer) ; dark light
-;; (use-package modus-themes                   :ensure :defer) ; dark light
 ;; (use-package moe-theme                      :ensure :defer) ; dark light
 ;; (use-package molokai-theme                  :ensure :defer) ; dark
 ;; (use-package monokai-pro-theme              :ensure :defer) ; dark
@@ -2114,6 +2138,21 @@ See `sort-words'."
 ;;    (solarized-high-contrast-mode-line t "make the modeline high contrast")  
 ;;    (solarized-use-more-italic t "use more italics")
 ;;    (x-underline-at-descent-line t "puts the underline below the font bottomline instead of the baseline")))
+
+(use-package modus-themes
+  :ensure
+  :init
+  ;; Add all your customizations prior to loading the themes
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs nil
+        modus-themes-region '(bg-only no-extend))
+  ;; Load the theme files before enabling a theme
+  (modus-themes-load-themes)
+  :config
+  ;; Load the theme of your choice:
+  ;(modus-themes-load-operandi) ;; OR (modus-themes-load-vivendi)
+  ;; :bind ("<f5>" . modus-themes-toggle)
+  )
 
 ;; ;; http://stackoverflow.com/questions/9900232/changing-color-themes-emacs-24-order-matters/15595000#15595000
 ;; ;; (defadvice load-theme
@@ -2674,33 +2713,48 @@ See `sort-words'."
 (use-package google-translate
   ;; Emacs interface to Google Translate
   :ensure
-  :bind (("\C-c t" . google-translate-at-point)
-         ("\C-c T" . google-translate-query-translate)
-         ;; ("\C-c r" . google-translate-at-point-reverse)
-         ;; ("\C-c R" . google-translate-query-translate-reverse)
-         )
+  :bind ("\C-c t" . google-translate-smooth-translate)
+
   :init
-  ;; (setq google-translate-show-phonetic t)
-  (setq google-translate-pop-up-buffer-set-focus t)
-  (setq google-translate-output-destination 'kill-ring);nil popup echo-area help kill-ring
-  (setq google-translate-default-source-language "en")
-  (setq google-translate-default-target-language "pt"))
+  (use-package popup :ensure :defer)
+
+  (require 'google-translate-smooth-ui)
+
+  (setq google-translate-translation-directions-alist
+        '(("en" . "pt") ("pt" . "en")
+          ("fr" . "pt") ("pt" . "fr")
+          ("en" . "fr") ("fr" . "en")))
+
+  (defun google-translate--search-tkk ()
+    "Search TKK."
+    (list 430675 2721866130))
+
+  :custom
+  ;; nil echo-area popup kill-ring current-buffer help
+  ;; paragraph-overlay paragraph-insert
+  ;; (google-translate-output-destination 'nil)
+  (google-translate-pop-up-buffer-set-focus t)
+  (google-translate-show-phonetic t)
+  (google-translate-listen-program "mpv")
+  ;; (google-translate-enable-ido-completion t)
+  (google-translate-default-source-language "auto")
+  (google-translate-default-target-language "pt")
+  )
 
 ;;;----------------------------------------------------------------------------
 
 (use-package org
   ;; keeping notes, maintaining TODO lists, planning projects, and authoring documents
   :defer
-  :bind (("\C-c l" . org-store-link)
-         ("\C-c a" . org-agenda)
-         ("\C-c b" . org-iswitchb)
-         ;; ("\C-c t" . orgtbl-mode)
-         )
+  :bind
+  (("\C-c l" . org-store-link)
+   ("\C-c a" . org-agenda)
+   ("\C-c b" . org-iswitchb)
+   ;; ("\C-c t" . orgtbl-mode)
+   )
   :hook
   ((org-mode . turn-on-font-lock)
-   (latex-mode . turn-on-orgtbl)
-   )
-  )
+   (latex-mode . turn-on-orgtbl)))
 
 (use-package epresent
   ;; Simple presentation mode for Emacs Org-mode
@@ -2921,6 +2975,10 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 ;;;----------------------------------------------------------------------------
 
+(use-package jsonnet-mode
+  :ensure
+  :defer)
+
 (use-package php-mode
   :ensure
   :defer)
@@ -2975,7 +3033,8 @@ XLFD defaults to the selected frame's font, or the default face's font."
 (use-package sudo-edit
   ;; Utilities for opening files with sudo
   :ensure
-  :bind (("C-c f s" . sudo-edit)))
+  ;; :bind (("C-c f s" . sudo-edit))
+  )
 
 (use-package etc-sudoers-mode
   ;; Syntax highlighting for the Sudo security policy file, /etc/sudoers
@@ -3061,6 +3120,64 @@ XLFD defaults to the selected frame's font, or the default face's font."
 ;;     (set-char-table-range composition-function-table (car char-regexp)
 ;;                           `([,(cdr char-regexp) 0 font-shape-gstring]))))
 
+(use-package fontaine
+  :ensure
+  :demand
+  :init
+  (setq fontaine-presets
+        '(
+          (default_
+           :default-family "Hack"
+           :default-height 100
+           :fixed-pitch-family "Fira Code"
+           :variable-pitch-family "Noto Sans"
+           :italic-family "Source Code Pro"
+           :line-spacing 1)
+          (tiny
+           ;; :default-family "Iosevka Comfy Wide Fixed"
+           :default-height 80)
+          (small
+           ;; :default-family "Iosevka Comfy Fixed"
+           :default-height 90)
+          (regular
+           :default-height 100)
+          (medium
+           :default-height 120)
+          (large
+           :default-height 140)
+          (extra-large
+           ;; :bold-weight extrabold
+           :default-height 160
+           ;; :default-weight semilight
+           )
+          (presentation
+           ;; :default-weight semilight
+           :default-height 170
+           ;; :bold-weight extrabold
+           )
+          (jumbo
+           :default-weight semilight
+           :default-height 220
+           :bold-weight extrabold)
+          (t
+           ;; :default-family "Iosevka Comfy"
+           :default-family "Hack"
+           :default-weight regular
+           ;; :variable-pitch-family "Iosevka Comfy Duo"
+           )
+          ))
+  :config
+  ;; Recover last preset or fall back to desired style from `fontaine-presets'.
+  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'large))
+  :hook
+  ;; The other side of `fontaine-restore-latest-preset'.
+  (kill-emacs . fontaine-store-latest-preset)
+  :bind
+  (("C-c f" . fontaine-set-preset)
+   ("C-c F" . fontaine-set-face-font))
+  )
+  
+
 ;;;----------------------------------------------------------------------------
 
 (define-minor-mode my/global-mode
@@ -3114,6 +3231,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
 ;;                      ;; (float-time (time-subtract after-init-time before-init-time))
 ;;                      (emacs-init-time)
 ;;                      gcs-done)))
+
 
 (provide 'init)
 ;;; init.el ends here
