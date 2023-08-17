@@ -1,18 +1,22 @@
-;;; init.el --- Emacs initialization -*- lexical-binding: t -*-
-;; Copyright (C) 2020 Romildo
+;;; init.el --- Personal emacs initialization -*- lexical-binding: t -*-
+
+;; Copyright (c) 2019-2023  José Romildo Malaquias <malaquias@gmail.com>
+
 ;; Author: José Romildo Malaquias <malaquias@gmail.com>
-;; Commentary:
-;; Code:
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "28.1"))
+
+;;; Commentary:
+
+;;; Code:
 
 ;;;; See https://github.com/a13/emacs.d for ideas
 
-(message "Starting emacs at %s..." (current-time-string))
-
-(message "load-path: %s" load-path)
-
-(when (version<= emacs-version "24")
+(when (< emacs-major-version 27)
   (message "Your Emacs is old, and some functionality in this config will be disabled.")
   (message "Please upgrade if possible."))
+
+(message "load-path: %s" load-path)
 
 (dolist (subdir '("lisp" "lib"))
   (let ((dir (expand-file-name subdir user-emacs-directory)))
@@ -23,23 +27,23 @@
 ;; Benchamarking initialization
 ;; ----------------------------------------------------------------------
 
-(defun jrm/time-subtract-millis (b a)
-  "Ellapsed time between B and A in milliseconds."
-  (* 1000.0 (float-time (time-subtract b a))))
+;; (defun jrm/time-subtract-millis (b a)
+;;   "Ellapsed time between B and A in milliseconds."
+;;   (* 1000.0 (float-time (time-subtract b a))))
 
-(defvar jrm/require-times nil
-  "A list of (FEATURE . LOAD-DURATION).
-LOAD-DURATION is the time taken in milliseconds to load FEATURE.")
+;; (defvar jrm/require-times nil
+;;   "A list of (FEATURE . LOAD-DURATION).
+;; LOAD-DURATION is the time taken in milliseconds to load FEATURE.")
 
-(defadvice require (around jrm/build-require-times (feature &optional filename noerror) activate)
-  "Note in `jrm/require-times' the time taken to require each feature."
-  (let* ((already-loaded (memq feature features))
-         (require-start-time (and (not already-loaded) (current-time))))
-    (prog1
-        ad-do-it
-      (when (and (not already-loaded) (memq feature features))
-        (let ((time (jrm/time-subtract-millis (current-time) require-start-time)))
-          (add-to-list 'jrm/require-times (cons feature time) t))))))
+;; (defadvice require (around jrm/build-require-times (feature &optional filename noerror) activate)
+;;   "Note in `jrm/require-times' the time taken to require each feature."
+;;   (let* ((already-loaded (memq feature features))
+;;          (require-start-time (and (not already-loaded) (current-time))))
+;;     (prog1
+;;         ad-do-it
+;;       (when (and (not already-loaded) (memq feature features))
+;;         (let ((time (jrm/time-subtract-millis (current-time) require-start-time)))
+;;           (add-to-list 'jrm/require-times (cons feature time) t))))))
 
 ;;;;;;;;;;
 
@@ -57,21 +61,7 @@ LOAD-DURATION is the time taken in milliseconds to load FEATURE.")
 
 
 ;;----------------------------------------------------------------------------
-;; Temporarily reduce garbage collection during startup
-;;----------------------------------------------------------------------------
-
-(defconst jrm/initial-gc-cons-threshold gc-cons-threshold
-  "Initial value of `gc-cons-threshold' at start-up time.")
-
-(setq gc-cons-threshold (* 128 1024 1024))
-
-(add-hook 'after-init-hook
-          (lambda ()
-            (setq gc-cons-threshold jrm/initial-gc-cons-threshold)))
-
-
-;;----------------------------------------------------------------------------
-;; Package initialization
+;; Packages
 ;;----------------------------------------------------------------------------
 
 ;; Make sure all my required packages are installed
@@ -86,7 +76,7 @@ installed packages."
     (when (yes-or-no-p (format "Missing packages: %s\nInstall them? " packages))
       (message "Emacs is now refreshing its package database...")
       (package-refresh-contents)
-      (message "%s" " done.")
+      (message " done.")
       ;; install the missing packages
       (dolist (p packages)
         (unless (package-installed-p p)
@@ -95,31 +85,47 @@ installed packages."
           (message " %s done." p)))
       packages)))
 
+
 (require 'package)
-(setq package-enable-at-startup nil)
-(setq package-check-signature (when (executable-find "gpg") 'allow-unsigned))
+
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives '("user42" . "https://download.tuxfamily.org/user42/elpa/packages/") t)
-(package-initialize)
-;; (package-initialize 'no-activate)
-(my/ensure-packages-installed 'use-package)
+
+;; Loading Emacs Lisp packages, and activating them is needed only if
+;; package-enable-at-startup is disabled in early-init
+;; (package-initialize)
+;; (package-initialize 'no-activate) ; ?????
+
+(setq package-name-column-width 36)
+
+(add-hook 'package-menu-mode-hook #'hl-line-mode)
+
+(global-set-key [(control c) ?p] 'list-packages) ; display a list of packages
 
 
-;; to display a list of packages: M-x list-packages
-;; while in the list of packages:
-;;   enter: describe package
-;;   i: mark for installation
-;;   u: unmakr
-;;   d: makr for deletion
-;;   U: update all of the installed packages
-;;   x: execute scheduled actions
-;;   g: revert
-;;   r: refresh the list from server
-
+;; Install use-package
+;;;;;;;;;;;;;;;;;;;; (my/ensure-packages-installed 'use-package)
 (eval-when-compile
   (require 'use-package))
 (setq use-package-verbose t)
+
+
+(use-package auto-package-update
+  ;; Automatically update Emacs packages at startup
+  :ensure
+  :custom
+  (auto-package-update-delete-old-versions t)
+  (auto-package-update-hide-results t)
+  (auto-package-update-interval 2)
+  (auto-package-update-prompt-before-update t)
+  (auto-package-update-show-preview t)
+  :hook
+  (auto-package-update-before . (lambda () (message "Starting auto-package-update...")))
+  (auto-package-update-after . (lambda () (message "End auto-package-update.")))
+  ;; (after-init . auto-package-update-maybe)
+  :config
+  ;; (auto-package-update-maybe)
+  :bind (("C-c P" . auto-package-update-now-async)))
 
 ;;----------------------------------------------------------------------------
 
@@ -132,38 +138,10 @@ installed packages."
   )
 
 (use-package async
-  :ensure t
-  :defer
-  :init (setq async-bytecomp-allowed-packages '(all))
-  :config (async-bytecomp-package-mode 1))
-
-(use-package paradox
-  ;; modernized package menu
   :ensure
-  :defer
-  :bind (("C-c p" . paradox-list-packages)
-         ("C-c P" . paradox-upgrade-packages))
-  :custom
-  (paradox-column-width-package 27)
-  (paradox-column-width-version 13)
-  (paradox-execute-asynchronously t)
-  (paradox-hide-wiki-packages t)
-  (paradox-github-token t) ;; ????????
-  (paradox-spinner-type 'moon)
   :config
-  (paradox-enable)
-  ;; (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print)
-
-  ;; ???????
-  ;; (require 'gh)
-  ;; (setq paradox-github-token (gh-auth-get-oauth-token))
-
-  ;; ???????
-  ;; :after auth-source-pass
-  ;; (setq paradox-github-token (auth-source-pass-get 'secret "paradox-github-token"))
-  ;; :custom
-  ;; (paradox-automatically-star t)
-  )
+  ;; Enable asynchronous compilation of elpa packages
+  (async-bytecomp-package-mode 1))
 
 ;;----------------------------------------------------------------------------
 
@@ -178,7 +156,7 @@ installed packages."
   (delight
    '(
      ;; <mode symbol> <replacement> <library>
-     ;; (abbrev-mode " Abv" abbrev)
+     ;; (abbrev-mode " Abv" abbrev)
      ;; (smart-tab-mode " \\t" smart-tab)
      ;; (eldoc-mode nil "eldoc")
      ;; (rainbow-mode)
@@ -246,6 +224,8 @@ installed packages."
 
   (frame-title-format
    '("%S: " (buffer-file-name "%f" (dired-directory dired-directory "%b"))))
+
+  (initial-scratch-message nil)
   )
 
 (use-package frame
@@ -262,11 +242,6 @@ installed packages."
 (use-package bookmark
   :custom
   (bookmark-default-file (expand-file-name ".bookmarks.el" user-emacs-directory)))
-
-(use-package bookmark
-  :custom
-  (initial-scratch-message nil)
-  (inhibit-startup-echo-area-message "romildo"))
 
 (use-package apropos
   :custom
@@ -366,10 +341,6 @@ installed packages."
   :custom
   (require-final-newline t "Always end a file with a newline"))
 
-(use-package "startup"
-  :custom
-  (inhibit-startup-screen t "Don't show splash screen"))
-
 ;; (use-package grep
 ;;   :custom
 ;;   (grep-highlight-matches t "Use special markers to highlight grep matches"))
@@ -440,10 +411,12 @@ installed packages."
   ;;  sp-hybrid-kill-entire-symbol nil)
   )
 
-(use-package savehist			; save minibuffer history
+(use-package savehist
+  ;; Save minibuffer history
+  :custom
+  (history-length 1000 "Maximum length of history lists before truncation takes place")
   :config
-  (setq history-length 1000)
-  (savehist-mode 1))
+  (savehist-mode))
 
 (use-package mb-depth
   ;; Indicate minibuffer depth
@@ -611,8 +584,15 @@ modified."
 
 
 ;; pre-defined keys for scaling font size:
-;; C-x C--
-;; C-x C-+  or  C-x C-=
+;; C-x C--  or  C-x -
+;; C-x C-+  or  C-x +  or  C-x C-=  or  C-x -
+;; C-x C-0  or  C-x 0
+
+;; pre-defined keys for scaling font size globally:
+;; C-x C-M--
+;; C-x C-M-+  or  C-x C-M=
+;; C-x C-M-0
+
 
 (global-set-key [(control x) ?a ?r] 'align-regexp)
 (global-set-key [(meta \[)] 'align)
@@ -625,35 +605,34 @@ modified."
 
 
 ;; Open terminal from emacs
-(global-set-key [(control x) ?t] (kbd "M-! gnome-terminal RET"))
+(let ((my/terminal "terminology"))
+  (when (executable-find my/terminal)
+    (global-set-key [(control x) ?t] (kbd (concat "M-! " my/terminal " RET")))))
 
 (use-package terminal-here
   ;; open an external terminal emulator in the current directory
   :ensure
-  :bind (([(control f5)] . terminal-here-launch)
-         ([(control f6)] . terminal-here-project-launch))
+  :bind (([(control c) ?o ?t] . terminal-here-launch)
+         ([(control c) ?o ?p] . terminal-here-project-launch))
   :config
   (defun my/gsettings-get (schema key)
-    (let ((a (shell-command-to-string (concat "gsettings get " schema " " key))))
-      (if (equal a (concat "No such key '" key "'\n"))
-          nil
-        (substring a 1 -2))))
+    (when (executable-find "gsettings")
+      (let ((value (shell-command-to-string (concat "gsettings get " schema " " key))))
+        (when (not (equal value (concat "No such key '" key "'\n")))
+          (substring value 1 -2)))))
 
-  (defun my/terminal-command (dir)
-    (or (and (executable-find "gsettings")
-             (let ((a (my/gsettings-get "org.gnome.desktop.default-applications.terminal" "exec")))
-               (and a (list a))))
-        (and (executable-find "x-terminal-emulator")
-             (list "x-terminal-emulator"))
-        (and (executable-find "xfce4-terminal")
-             (list "xfce4-terminal" (concat "--working-directory=" dir)))
-        (and (executable-find "gnome-terminal")
-             (list "gnome-terminal"))
-        (and (executable-find "xterm")
-             (list "xterm"))
-        (terminal-here-default-terminal-command dir)))
-
-  (setq terminal-here-terminal-command #'my/terminal-command))
+  :custom
+  (terminal-here-terminal-command
+   (cond
+    ((terminal-here--pick-linux-default))
+    ((let ((term (my/gsettings-get "org.gnome.desktop.default-applications.terminal" "exec")))
+       (and term (list term))))
+    ((executable-find "terminology") (list "terminology"))
+    ((executable-find "qterminal") 'qterminal)
+    ((executable-find "x-terminal-emulator") 'x-terminal-emulator)
+    ((executable-find "xfce4-terminal") (lambda (dir) (list "xfce4-terminal" (concat "--working-directory=" dir))))
+    ((executable-find "gnome-terminal") 'gnome-terminal)
+    ((executable-find "xterm") 'xterm))))
 
 ;; Windmove is a library built into GnuEmacs starting with version
 ;; 21. It lets you move point from window to window using Shift and the
@@ -722,7 +701,6 @@ modified."
       (kill-new new-kill-string))))
 
 
-
 ;; http://unix.stackexchange.com/questions/19494/how-to-colorize-text-in-emacs
 ;; this seems to  be very slow for large files
 (define-derived-mode my/fundamental-ansi-mode fundamental-mode "fundamental ansi"
@@ -740,10 +718,10 @@ modified."
   ;; bold,underline and overline.
   ;; http://user42.tuxfamily.org/tty-format/index.html
 
-  :ensure ; available on "user42" ELPA archive
+  ;; :load-path "lib"
+  :ensure tty-format ; available on "user42" ELPA archive (not working?)
 
   :config
-
   ;; M-x display-ansi-colors to explicitly decode ANSI color escape sequences
   (defun display-ansi-colors ()
     (interactive)
@@ -755,7 +733,6 @@ modified."
   ;; decode ANSI color escape sequences for .log files
   (add-to-list 'auto-mode-alist '("\\.log\\'" . display-ansi-colors))
   )
-
 
 
 ;; www.emacswiki.org/emacs/SortWords
@@ -861,13 +838,30 @@ See `sort-words'."
        "")))
   )
 
-(display-time-mode t) ; display time, load level, and mail flag in mode lines
+(set-face-attribute 'mode-line nil
+                    :inherit 'variable-pitch
+                    :foreground "black"
+                    :background "grey75"
+                    :box '(:line-width -1 :style nil)
+                    :height 0.8
+                    )
 
-(column-number-mode t) ; display column number in mode lines
+;; (set-face-attribute 'mode-line-inactive nil
+;;                     :inherit 'variable-pitch
+;;                     :foreground "black"
+;;                     :background "grey80"
+;;                     :box '(:line-width -1 :color "grey40" :style nil)
+;;                     :height 0.8
+;;                     :weight 'light
+;;                     )
 
-;; (size-indication-mode t) ; display buffer size in mode lines
+(display-time-mode) ; display time, load level, and mail flag in mode lines
 
-;; (display-battery-mode 1) ; display battery status in mode lines
+(column-number-mode) ; display column number in mode lines
+
+;; (size-indication-mode) ; display buffer size in mode lines
+
+;; (display-battery-mode) ; display battery status in mode lines
 ;; (setq battery-mode-line-format "[%b%p%% %t,%d°C]")
 
 (use-package simple-modeline
@@ -875,43 +869,6 @@ See `sort-words'."
   :ensure
   :disabled
   :hook (after-init . simple-modeline-mode))
-
-(use-package spaceline-config
-  ;; Modeline configuration library for powerline
-  :ensure spaceline
-  :disabled
-  :defer
-  :config
-  (spaceline-spacemacs-theme)
-  ;;(spaceline-emacs-theme)
-  
-  ;; (setq spaceline-workspace-numbers-unicode t)
-  ;; (setq spaceline-window-numbers-unicode t)
-  ;; ;; (setq powerline-default-separator 'zigzag)
-  ;; ;; (spaceline-define-segment line-column
-  ;; ;;                           "The current line and column numbers."
-  ;; ;;                           "l:%l c:%2c")
-  ;; ;; (spaceline-define-segment time
-  ;; ;;                           "The current time."
-  ;; ;;                           (format-time-string "%H:%M"))
-  ;; ;; (spaceline-define-segment date
-  ;; ;;                           "The current date."
-  ;; ;;                           (format-time-string "%h %d"))
-  ;; ;; (spaceline-toggle-time-on)
-  ;; ;; (spaceline-emacs-theme 'date 'time)
-    
-  ;; ;; (eval-after-load 'info-mode '(spaceline-info-mode))
-  
-  ;; (advice-add 'load-theme :after
-  ;;             (lambda (theme &optional no-confirm no-enable)
-  ;;               (powerline-reset)))
-  )
-
-;; (use-package spaceline-all-the-icons
-;;   ;; A Spaceline Mode Line theme using All The Icons
-;;   :ensure
-;;   :after spaceline
-;;   :config (spaceline-all-the-icons-theme))
 
 (use-package telephone-line
   ;; A new implementation of Powerline for Emacs
@@ -932,20 +889,33 @@ See `sort-words'."
 
 (use-package doom-modeline
   ;; A fancy and fast mode-line inspired by minimalism design.
+  ;; It is able to display icons if nerd-icons package and required fonts are installed.
   :ensure
   :hook
   (after-init . doom-modeline-mode)
   :custom
   ;; (doom-modeline-buffer-file-name-style 'file-name)
-  (doom-modeline-height 24)
-  ;; (doom-modeline-bar-width 6)
-  (doom-modeline-minor-modes t))
+  ;; (doom-modeline-height 24 "How tall the mode-line should be. Default: 23")
+  ;; (doom-modeline-bar-width 6 "How wide the mode-line bar should be. Default: 4 ?")
+  (doom-modeline-minor-modes t "Whether display the minor modes in the mode-line. Default: nil"))
+
+(use-package nerd-icons
+  ;; A library for easily using Nerd Font icons inside Emacs, an alternative to all-the-icons.
+  ;; It works on both GUI and terminal! You only need a Nerd Font installed on your system.
+  ;; It is inspired by all-the-icons, icons-in-terminal, vim-devicons, and nvim-web-devicons.
+  :ensure
+  :defer
+  ;; :custom
+  ;; The Nerd Font you want to use in GUI
+  ;; "Symbols Nerd Font Mono" is the default and is recommended
+  ;; but you can use any other Nerd Font if you want
+  ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
+  (nerd-icons-font-family "FantasqueSansM Nerd"))
 
 (use-package smart-mode-line
   ;; A powerful and beautiful mode-line for Emacs
   :ensure
   :disabled
-  :defer
   :config
   ;; (setq sml/theme 'respectful)
   ;; (sml/setup)
@@ -1145,8 +1115,8 @@ See `sort-words'."
   :hook (after-init . global-company-mode)
   :config
   (setq company-idle-delay 0.0)              ; idle delay in seconds until completion starts automatically ; default: 0.5
-  (setq company-echo-delay 0)                ; default: 0.01 ; remove annoying blinking
-  (setq company-minimum-prefix-length 2)     ; minimum prefix length for idle completion ; default: 3
+  (setq company-echo-delay 0.01)             ; default: 0.01 ; remove annoying blinking
+  (setq company-minimum-prefix-length 3)     ; minimum prefix length for idle completion ; default: 3
   (setq company-show-numbers t)              ; show quick-access numbers
   (setq company-tooltip-limit 20)            ; maximum number of candidates in the tooltip ; default: 10
   (setq company-tooltip-align-annotations t) ; align annotations to the right tooltip border
@@ -1354,7 +1324,17 @@ See `sort-words'."
 
 (use-package jka-cmpr-hook
   ;; Support for reading, writing, and loading compressed files.
-  :config (auto-compression-mode t))
+  :config
+  (add-to-list 'jka-compr-load-suffixes ".gnucash")
+  ;; these are just the .gz settings in `jka-cmpr-hook`
+  (add-to-list 'jka-compr-compression-info-list
+               ["\\.gnucash\\'"
+                "compressing"        "gzip"         ("-c" "-q")
+                "uncompressing"      "gzip"         ("-c" "-q" "-d")
+                t t "\037\213"
+                zlib-decompress-region])
+  (jka-compr-update)
+  (auto-compression-mode t))
 
 ;;; ---------------------------------------------------------------------
 ;;; speedbar
@@ -1579,6 +1559,9 @@ See `sort-words'."
                                         ;     or clangd
                                         ; cquery
 
+;;; ---------------------------------------------------------------------
+;;; lsp-mode
+
 (use-package lsp-mode
   ;; client for the language server protocol
   :ensure
@@ -1601,6 +1584,8 @@ See `sort-words'."
   :after lsp-mode
   ;; :commands lsp-ui-mode
   ;; :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-sideline-delay 0.3 "Number of seconds to wait before showing sideline")
   )
 
 (use-package lsp-ivy
@@ -1684,6 +1669,7 @@ See `sort-words'."
   ;; haskell-language-server or ghcide using Microsoft's Language
   ;; Server Protocol.
   :ensure
+  :defer
   :config
   (setq lsp-haskell-server-path "ghcide")
   (setq lsp-haskell-server-args '())
@@ -1788,6 +1774,13 @@ See `sort-words'."
    (tuareg-interactive-mode
     . (lambda ()
         (local-set-key [(control return)] 'comint-send-input))))
+
+  :config
+  (defun my/open-dune-file ()
+    "Opens the nearest enclosing dune-file."
+    (interactive)
+    (find-file (string-join (list (locate-dominating-file buffer-file-name "dune") "/dune"))))
+  (bind-key (kbd "C-c C-q") #'init-ocaml/open-dune-file tuareg-mode-map)
   )
 
 (use-package utop
@@ -2042,10 +2035,11 @@ See `sort-words'."
 ;;; ---------------------------------------------------------------------------
 ;;; Themes
 
+(use-package adwaita-dark-theme             :ensure :defer) ; dark
 (use-package alect-themes                   :ensure :defer) ; dark light
 ;; (use-package anti-zenburn-theme             :ensure :defer) ;      light
 (use-package apropospriate-theme            :ensure :defer) ; dark light
-(use-package arc-dark-theme                 :ensure :defer) ; dark
+(use-package arc-dark-theme                 :load-path "cloned/arc-dark-theme" :defer) ; dark
 ;; (use-package avk-emacs-themes               :ensure :defer) ; dark light
 ;; (use-package ayu-theme                      :ensure :defer) ; dark light
 ;; (use-package berrys-theme                   :ensure :defer) ;      light
@@ -2059,6 +2053,7 @@ See `sort-words'."
 ;; (use-package dark-mint-theme                :ensure :defer) ; dark
 ;; (use-package doneburn-theme                 :ensure :defer) ;      light
 (use-package dream-theme                    :ensure :defer) ; dark
+(use-package ef-themes                      :ensure :defer) ; dark light
 ;; (use-package eink-theme                     :ensure :defer) ;      light
 ;; (use-package exotica-theme                  :ensure :defer) ; dark
 ;; (use-package faff-theme                     :ensure :defer) ;      light
@@ -2092,6 +2087,7 @@ See `sort-words'."
 ;; (use-package naysayer-theme                 :ensure :defer) ; dark
 ;; (use-package nimbus-theme                   :ensure :defer) ; dark
 ;; (use-package nord-theme                     :ensure :defer) ; dark
+(use-package nordic-night-theme             :ensure :defer) ; dark
 ;; (use-package nubox                          :ensure :defer) ; dark light tty
 ;; (use-package one-themes                     :ensure :defer) ; dark light
 ;; (use-package organic-green-theme            :ensure :defer) ;      light
@@ -2106,6 +2102,7 @@ See `sort-words'."
 ;; (use-package snazzy-theme                   :ensure :defer) ; dark
 ;; (use-package spacemacs-theme                :ensure :defer) ; dark
 ;; (use-package srcery-theme                   :ensure :defer) ; dark
+(use-package standard-themes                   :ensure :defer) ; dark light
 ;; (use-package sublime-themes                 :ensure :defer)
 ;; (use-package sunburn-theme                  :ensure :defer) ; dark
 ;; (use-package suscolors-theme                :ensure :defer) ; dark
@@ -2141,16 +2138,16 @@ See `sort-words'."
 
 (use-package modus-themes
   :ensure
+
   :init
   ;; Add all your customizations prior to loading the themes
   (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs nil
-        modus-themes-region '(bg-only no-extend))
-  ;; Load the theme files before enabling a theme
-  (modus-themes-load-themes)
+        modus-themes-bold-constructs t)
+
   :config
-  ;; Load the theme of your choice:
-  ;(modus-themes-load-operandi) ;; OR (modus-themes-load-vivendi)
+  ;; Load the theme of your choice.
+  ;; (load-theme 'modus-operandi :no-confim)
+
   ;; :bind ("<f5>" . modus-themes-toggle)
   )
 
@@ -2192,8 +2189,6 @@ See `sort-words'."
 
 ;; (set-face-attribute font-lock-comment-face nil :slant 'italic)
 (set-face-attribute font-lock-comment-face nil :slant 'oblique)
-
-;; (set-face-attribute 'mode-line nil :inherit 'variable-pitch)
 
 ;;; ---------------------------------------------------------------------------
 ;;; festival
@@ -2423,12 +2418,12 @@ See `sort-words'."
 (use-package nix-mode
   :ensure
   :defer
-  :mode ("\\.nix\\'" "\\.nix.in\\'")
-  :config
-  ;; (add-hook 'nix-mode-hook (lambda () (smartscan-mode 1)))
-  ;; hiphen should be a symbol constituent
-  (add-hook 'nix-mode-hook (lambda () (modify-syntax-entry ?- "_")))
-  )
+  :hook (nix-mode
+         . (lambda ()
+             (use-local-map nix-mode-map)
+             (modify-syntax-entry ?- "_") ; hiphen should be a symbol constituent
+             ;; (smartscan-mode 1) ; ????????
+             )))
 
 (use-package company-nixos-options
   :ensure
@@ -2445,11 +2440,21 @@ See `sort-words'."
   ;; Reformat Nix code with nixpkgs-fmt
   :ensure
   :after nix-mode
+  :config
+  (message "nixpkgs-fmt ------------------------------------------")
   ;; :hook (nix-mode . nixpkgs-fmt-on-save-mode)
-  :bind (:map nix-mode-map ("C-c C-f" . nixpkgs-fmt)) )
+  ;; :bind (:map nix-mode-map ("C-c C-f" . nixpkgs-fmt)) ; ????????
+  )
 
 ;;;----------------------------------------------------------------------------
 ;;; tabs
+
+(tab-bar-mode 1)
+;; (setq tab-bar-show 1)                      ;; hide bar if <= 1 tabs open
+;; (setq tab-bar-close-button-show nil)       ;; hide tab close / X button
+;; (setq tab-bar-new-tab-choice "*dashboard*");; buffer to show in new tabs
+;; (setq tab-bar-tab-hints t)                 ;; show tab numbers
+;; (setq tab-bar-format '(tab-bar-format-tabs tab-bar-separator))) ;; elements to include in bar
 
 ;; (when (require 'tabbar nil 'noerror)
 ;;   (tabbar-mode)
@@ -2817,7 +2822,7 @@ See `sort-words'."
   :ensure
   :mode ("\\.md\\'" . gfm-mode)
   :custom
-  (markdown-command "pandoc -t html5")
+  (markdown-command "pandoc -t html5 --pdf-engine=weasyprint")
   (markdown-fontify-code-blocks-natively t)
   ;; :hook (markdown-mode . turn-on-orgtbl)
   :config
@@ -2827,6 +2832,23 @@ See `sort-words'."
                 (let ((browse-url-browser-function #'browse-url-firefox))
                   (apply orig args))))
   )
+
+(use-package markdown-xwidget
+  :disabled ; xwidget is not working for me; wait appearing in MELPA
+  :load-path "cloned/markdown-xwidget/"
+  :after markdown-mode
+  ;; :straight (markdown-xwidget
+  ;;            :type git
+  ;;            :host github
+  ;;            :repo "cfclrk/markdown-xwidget"
+  ;;            :files (:defaults "resources"))
+  :bind (:map markdown-mode-command-map
+              ("x" . markdown-xwidget-preview-mode))
+  :custom
+  (markdown-xwidget-command "pandoc")
+  (markdown-xwidget-github-theme "light")
+  (markdown-xwidget-mermaid-theme "default")
+  (markdown-xwidget-code-block-theme "default"))
 
 (use-package edit-indirect
   ;; Edit regions in separate buffers. Markdown relies on this package
@@ -3033,6 +3055,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
 (use-package sudo-edit
   ;; Utilities for opening files with sudo
   :ensure
+  :defer
   ;; :bind (("C-c f s" . sudo-edit))
   )
 
@@ -3042,9 +3065,11 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :defer
   )
 
-(use-package all-the-icons-dired
+(use-package nerd-icons-dired
+  ;; Use nerd-icons for Dired. Needs nerd-icons.
   :ensure
-  :after dired)
+  :hook
+  (dired-mode . nerd-icons-dired-mode))
 
 (use-package diredfl
   ;; extra font lock rules for a more colourful dired
@@ -3125,50 +3150,42 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :demand
   :init
   (setq fontaine-presets
-        '(
-          (default_
-           :default-family "Hack"
-           :default-height 100
-           :fixed-pitch-family "Fira Code"
-           :variable-pitch-family "Noto Sans"
-           :italic-family "Source Code Pro"
-           :line-spacing 1)
-          (tiny
-           ;; :default-family "Iosevka Comfy Wide Fixed"
-           :default-height 80)
-          (small
-           ;; :default-family "Iosevka Comfy Fixed"
-           :default-height 90)
+        '((small
+           :default-family "Iosevka Comfy Wide"
+           :default-height 140
+           :variable-pitch-family "Iosevka Comfy Wide Motion Duo")
           (regular
-           :default-height 100)
+           :default-height 160)
           (medium
-           :default-height 120)
-          (large
-           :default-height 140)
-          (extra-large
-           ;; :bold-weight extrabold
-           :default-height 160
-           ;; :default-weight semilight
-           )
-          (presentation
-           ;; :default-weight semilight
-           :default-height 170
-           ;; :bold-weight extrabold
-           )
-          (jumbo
            :default-weight semilight
-           :default-height 220
+           :default-height 180
            :bold-weight extrabold)
+          (large
+           :inherit medium
+           :default-height 200)
+          (presentation
+           :inherit medium
+           :default-weight light
+           :default-height 250)
+          (jumbo
+           :inherit medium
+           :default-weight light
+           :default-height 300)
           (t
-           ;; :default-family "Iosevka Comfy"
-           :default-family "Hack"
-           :default-weight regular
-           ;; :variable-pitch-family "Iosevka Comfy Duo"
+           :default-family "Iosevka Comfy"
+           ;; :default-family "Iosevka Fixed"
+           ;; :default-family "Fantasque Sans Mono"
+           ;; :default-family "Sudo"
+           ;; :default-family "Hack"
+           ;; :default-weight regular
+           :variable-pitch-family "Iosevka Comfy Motion Duo"
+           ;; :variable-pitch-family "Sans Serif"
+           ;; :variable-pitch-family "Sudo UI"
            )
           ))
   :config
-  ;; Recover last preset or fall back to desired style from `fontaine-presets'.
-  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'large))
+  ;; Set last preset or fall back to desired style
+  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
   :hook
   ;; The other side of `fontaine-restore-latest-preset'.
   (kill-emacs . fontaine-store-latest-preset)
@@ -3176,7 +3193,25 @@ XLFD defaults to the selected frame's font, or the default face's font."
   (("C-c f" . fontaine-set-preset)
    ("C-c F" . fontaine-set-face-font))
   )
-  
+
+(use-package file-info
+  ;; Quick view and copy all necessary information about current opened file
+  :ensure
+  :bind (("C-c C-f" . file-info-show))
+  :config
+  (setq hydra-hint-display-type 'posframe)
+  (setq hydra-posframe-show-params `(:poshandler posframe-poshandler-frame-center
+                                     :internal-border-width 2
+                                     :internal-border-color "#61AFEF"
+                                     :left-fringe 16
+                                     :right-fringe 16)))
+
+(use-package titlecase
+  :ensure
+  :defer
+  :config
+  (dolist (word '("da" "das" "de" "do" "dos"))
+    (add-to-list 'titlecase-skip-words-regexps word)))
 
 ;;;----------------------------------------------------------------------------
 
