@@ -3,7 +3,7 @@
 ;; Copyright (c) 2019-2023  José Romildo Malaquias <malaquias@gmail.com>
 
 ;; Author: José Romildo Malaquias <malaquias@gmail.com>
-;; Version: 0.1.0
+;; Version: 0.1.1
 ;; Package-Requires: ((emacs "28.1"))
 
 ;;; Commentary:
@@ -64,28 +64,6 @@
 ;; Packages
 ;;----------------------------------------------------------------------------
 
-;; Make sure all my required packages are installed
-(defun my/ensure-packages-installed (&rest packages)
-  "Assure every package in PACKAGES is installed. Asks for
-permission to install the missing ones.  Return a list of
-installed packages."
-  (setq packages
-        (delq nil (mapcar (lambda (p) (and (not (package-installed-p p)) p))
-                          packages)))
-  (when packages
-    (when (yes-or-no-p (format "Missing packages: %s\nInstall them? " packages))
-      (message "Emacs is now refreshing its package database...")
-      (package-refresh-contents)
-      (message " done.")
-      ;; install the missing packages
-      (dolist (p packages)
-        (unless (package-installed-p p)
-          (message "Installing package %s..." p)
-          (package-install p)
-          (message " %s done." p)))
-      packages)))
-
-
 (require 'package)
 
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -102,13 +80,9 @@ installed packages."
 
 (global-set-key [(control c) ?p] 'list-packages) ; display a list of packages
 
-
-;; Install use-package
-;;;;;;;;;;;;;;;;;;;; (my/ensure-packages-installed 'use-package)
 (eval-when-compile
   (require 'use-package))
 (setq use-package-verbose t)
-
 
 (use-package auto-package-update
   ;; Automatically update Emacs packages at startup
@@ -205,7 +179,6 @@ installed packages."
   (truncate-partial-width-windows nil)
   (scroll-preserve-screen-position 'always)
   (visible-bell t "try to flash the frame to represent a bell")
-  (load-prefer-newer t "`load' prefers the newest version of a file")
   ;; (truncate-lines nil "do not truncate long lines instead of line wrapping them")
 
   ;; How many columns away from the window edge point is allowed to get
@@ -322,14 +295,17 @@ installed packages."
   ;; maybe use custom-face ?
   (set-face-attribute 'line-number nil
                       ;; :family "Monospace"
-                      :width 'condensed
-                      :height 0.8
+                      :width 'extra-condensed
+                      :height 0.75
                       :weight 'thin
-                      :slant 'oblique)
+                      :slant 'oblique
+                      ;; :inverse-video t
+                      )
   (set-face-attribute 'line-number-current-line nil
                       :inherit 'line-number
-                      :weight 'bold)
-  (global-display-line-numbers-mode))
+                      :weight 'semi-bold)
+  :hook
+  (after-init . global-display-line-numbers-mode))
 
 (use-package hl-line
   ;; Toggle line highlighting in all buffers
@@ -348,7 +324,11 @@ installed packages."
 (use-package recentf
   ;; keep a list of recently opened files
   :if (not noninteractive)
-  :init (recentf-mode 1))
+  :hook (after-init . recentf-mode)
+  :custom
+  (recentf-max-menu-items 25)
+  (recentf-max-saved-items 512)
+  )
 
 (use-package saveplace
   ;; Automatically save place in files, so that visiting them later
@@ -452,6 +432,14 @@ installed packages."
   ;; :bind (("C-c R" . re-builder))
   :custom
   (reb-re-syntax 'string "syntax for REs in the RE Builder: read, string or rx"))
+
+(use-package window-divider-mode
+  :hook
+  (after-init . window-divider-mode)
+  :custom
+  (window-divider-default-right-width 2)
+  (window-divider-default-bottom-width 2)
+  (window-divider-default-places t))
 
 ;;; ---------------------------------------------------------------------------
 
@@ -718,8 +706,8 @@ modified."
   ;; bold,underline and overline.
   ;; http://user42.tuxfamily.org/tty-format/index.html
 
-  ;; :load-path "lib"
   :ensure tty-format ; available on "user42" ELPA archive (not working?)
+  ;; :load-path "lib"
 
   :config
   ;; M-x display-ansi-colors to explicitly decode ANSI color escape sequences
@@ -1014,6 +1002,18 @@ See `sort-words'."
     "...XX..."
     "........"))
 
+(use-package magit-file-icons
+  ;; Display icons for filenames in Magit buffers!
+  :ensure
+  :after magit
+  :init
+  (magit-file-icons-mode 1)
+  :custom
+  ;; These are the default values:
+  (magit-file-icons-enable-diff-file-section-icons t)
+  (magit-file-icons-enable-untracked-icons t)
+  (magit-file-icons-enable-diffstat-icons t))
+
 ;;; ---------------------------------------------------------------------------
 
 (use-package imenu-list
@@ -1111,15 +1111,15 @@ See `sort-words'."
   :ensure
   ;;:delight (company-mode "C…")
   :bind ([(control .)] . company-complete)
-  ;;:demand
   :hook (after-init . global-company-mode)
   :config
-  (setq company-idle-delay 0.0)              ; idle delay in seconds until completion starts automatically ; default: 0.5
-  (setq company-echo-delay 0.01)             ; default: 0.01 ; remove annoying blinking
-  (setq company-minimum-prefix-length 3)     ; minimum prefix length for idle completion ; default: 3
-  (setq company-show-numbers t)              ; show quick-access numbers
-  (setq company-tooltip-limit 20)            ; maximum number of candidates in the tooltip ; default: 10
-  (setq company-tooltip-align-annotations t) ; align annotations to the right tooltip border
+  (setq company-echo-delay 0.01)        ; default: 0.01 ; remove annoying blinking
+  :custom
+  (company-idle-delay 0.0)              ; idle delay in seconds until completion starts automatically; default: 0.2
+  (company-minimum-prefix-length 3)     ; minimum prefix length for idle completion; default: 3
+  (company-show-quick-access t)         ; show quick-access numbers; default: nil
+  (company-tooltip-limit 20)            ; maximum number of candidates in the tooltip; default: 10
+  (company-tooltip-align-annotations t) ; align annotations to the right tooltip border; default: nil
 
   ;; desired key bindings for: company-manual-begin
   ;; company-complete-common company-complete company-select-next
@@ -1392,6 +1392,7 @@ See `sort-words'."
   ;; (add-to-list 'LaTeX-verbatim-environments "pygmentex")
   )
 
+;; REVIEW THIS JRM
 (use-package auctex-latexmk
   ;; adds LatexMk support to AUCTeX
   :ensure
@@ -1405,6 +1406,58 @@ See `sort-words'."
   :hook
   (TeX-mode . (lambda () (setq TeX-command-default "LatexMk")))
   (LaTeX-mode . (lambda () (setq TeX-command-default "LatexMk")))
+  )
+
+(use-package tex-item
+  ;; Commands for working with tex items
+  :ensure
+  :disabled
+  :after latex
+  :config
+  (defvar-keymap tex-item-map
+    :repeat t
+    "n" #'tex-item-forward
+    "p" #'tex-item-backward
+    "SPC" #'tex-item-mark
+    "k" #'tex-item-kill
+    "<backspace>" #'tex-item-backward-kill
+    "t" #'tex-item-transpose
+    "<down>" #'tex-item-move-down
+    "<up>" #'tex-item-move-up)
+  (define-key LaTeX-mode-map (kbd "M-g M-i") tex-item-map))
+
+(use-package tex-parens
+  ;; Like lisp.el but for tex
+  :ensure
+  :disabled
+  :after latex
+  :hook
+  (tex-mode . tex-parens-mode)
+  (TeX-mode . tex-parens-mode))
+
+(use-package auctex-cont-latexmk
+  ;; Run latexmk continuously, report errors via flymake
+  :ensure
+  :disabled
+  :after latex
+  :bind
+  (:map LaTeX-mode-map
+        ("C-c k" . auctex-cont-latexmk-toggle)))
+
+(use-package preview-auto
+  ;; Automatic previews in AUCTeX
+  :ensure
+  :disabled
+  :after latex
+  :config
+  ;; Recommended AUCTeX settings
+  (setq preview-locating-previews-message nil)
+  (setq preview-protect-point t)
+  (setq preview-leave-open-previews-visible t)
+  :custom
+  (preview-auto-interval 0.1)
+  ;; Optimization: makes preview always use DVI’s, which generate faster than PDF’s:
+  (preview-LaTeX-command-replacements '(preview-LaTeX-disable-pdfoutput))
   )
 
 (use-package company-auctex
@@ -1560,49 +1613,94 @@ See `sort-words'."
                                         ; cquery
 
 ;;; ---------------------------------------------------------------------
-;;; lsp-mode
+;;; lsp client
+;;; I will use eglot instead of lsp-mode
 
-(use-package lsp-mode
-  ;; client for the language server protocol
-  :ensure
-  :hook (
-         (c-mode . lsp-deferred)
-         (c++-mode . lsp-deferred)
-         (objc-mode . lsp-deferred)
-         (haskell-mode . lsp-deferred)
-         (haskell-literate-mode-hook . lsp-deferred)
-         (tuareg-mode . lsp-deferred)
-         ;;
-         (lsp-mode . lsp-enable-which-key-integration)
-         )
-  )
-
-(use-package lsp-ui
-  ;; UI integrations for lsp-mode: higher level UI modules of lsp-mode
-  ;; (fancy sideline, popup documentation, VScode-like peek UI, etc.)
-  :ensure
-  :after lsp-mode
-  ;; :commands lsp-ui-mode
-  ;; :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-sideline-delay 0.3 "Number of seconds to wait before showing sideline")
-  )
-
-(use-package lsp-ivy
-  ;; interactive ivy interface to the workspace symbol functionality
-  ;; offered by lsp-mode
-  :ensure
-  :after lsp-mode)
-
-(use-package lsp-treemacs
-  ;; Integration between lsp-mode and treemacs and implementation of
-  ;; treeview controls using treemacs as a tree renderer.
-  :ensure
-  :after lsp-mode)
-
-;; (use-package ccls
+;; (use-package lsp-mode
+;;   ;; client for the language server protocol
 ;;   :ensure
-;;   :defer)
+;;   :hook (
+;;          (c-mode . lsp-deferred)
+;;          (c++-mode . lsp-deferred)
+;;          (objc-mode . lsp-deferred)
+;;          (haskell-mode . lsp-deferred)
+;;          (haskell-literate-mode-hook . lsp-deferred)
+;;          (tuareg-mode . lsp-deferred)
+;;          ;;
+;;          (lsp-mode . lsp-enable-which-key-integration)
+;;          )
+;;   )
+
+;; (use-package lsp-ui
+;;   ;; UI integrations for lsp-mode: higher level UI modules of lsp-mode
+;;   ;; (fancy sideline, popup documentation, VScode-like peek UI, etc.)
+;;   :ensure
+;;   :after lsp-mode
+;;   ;; :commands lsp-ui-mode
+;;   ;; :hook (lsp-mode . lsp-ui-mode)
+;;   :custom
+;;   (lsp-ui-sideline-delay 0.3 "Number of seconds to wait before showing sideline")
+;;   )
+
+;; (use-package lsp-ivy
+;;   ;; interactive ivy interface to the workspace symbol functionality
+;;   ;; offered by lsp-mode
+;;   :ensure
+;;   :after lsp-mode)
+
+;; (use-package lsp-treemacs
+;;   ;; Integration between lsp-mode and treemacs and implementation of
+;;   ;; treeview controls using treemacs as a tree renderer.
+;;   :ensure
+;;   :after lsp-mode)
+
+;; ;; (use-package ccls
+;; ;;   :ensure
+;; ;;   :defer)
+
+(use-package eglot
+  ;; Emacs Polyglot: Emacs client for the Language Server Protocol (LSP)
+  :hook (
+         (c-mode . eglot-ensure)
+         (c++-mode . eglot-ensure)
+         (objc-mode . eglot-ensure)
+         (haskell-mode . eglot-ensure)
+         (haskell-literate-mode-hook . eglot-ensure)
+         (tuareg-mode . eglot-ensure)
+         (nix-mode . eglot-ensure)
+         ;; (sh-mode . eglot-ensure)
+         )
+  :custom
+  ;; (eglot-autoshutdown t)  ;; shutdown language server after closing last file
+  (eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
+  :bind (
+         ("C-c h i" . eglot-find-implementation)
+         ("C-c h e" . eglot)
+         ("C-c h k" . eglot-shutdown-all)
+         ("C-c h r" . eglot-rename)
+         ("C-c h a" . eglot-code-actions)
+         ("C-c h m" . eglot-menu)
+         ("C-c h f" . eglot-format-buffer)
+         )  
+  :hook
+  ;; https://emacs.stackexchange.com/questions/73983/how-to-make-eldoc-only-popup-on-demand
+  (eglot-managed-mode . (lambda ()
+                          ;; we want eglot to setup callbacks from eldoc, but we don't want eldoc
+                          ;; running after every command. As a workaround, we disable it after we just
+                          ;; enabled it. Now calling `M-x eldoc` will put the help we want in the eldoc
+                          ;; buffer. Alternatively we could tell eglot to stay out of eldoc, and add
+                          ;; the hooks manually, but that seems fragile to updates in eglot.
+                          (eldoc-mode -1)))
+  )
+
+(use-package tree-sitter ;; ?????????????????????????????
+  :ensure
+  :config
+  (global-tree-sitter-mode))
+
+(use-package tree-sitter-langs ;; ?????????????????????????????
+  :ensure
+  :after tree-sitter)
 
 ;;; ---------------------------------------------------------------------
 ;;; python-mode
@@ -1627,53 +1725,46 @@ See `sort-words'."
   ;; a Haskell editing mode
   :ensure
   :defer
-  ;; :bind (:map haskell-mode-map
-  ;;             ;; ("F8" . haskell-navigate-imports)
-  ;;        ;;      ("C-c m i s" . haskell-sort-imports)
-  ;;        ;;      ("C-c m i a" . haskell-align-imports)
-  ;;        ;;      ("C-c C-c" . haskell-compile)
-  ;;        ;; :map haskell-cabal-mode-map
-  ;;        ;;      ("C-c C-c" . haskell-compile)
-  ;;        ;; ;; Recommended Haskell Mode bindings, see
-  ;;        ;; ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html
-  ;;        )
-  ;; :hook
-  ;; ((haskell-mode . flycheck-mode)
-  ;;  (haskell-mode . interactive-haskell-mode)
-  ;;  (haskell-mode . (lambda ()
-  ;;                    ;; completion support: in order to provide candidates for
-  ;;                    ;; identifiers defined locally in let and where blocks combine
-  ;;                    ;; completion candidates from completion-at-point function
-  ;;                    ;; (company-capf backend) and dynamic abbrevs
-  ;;                    (set (make-local-variable 'company-backends)
-  ;;                         (append '((company-capf company-dabbrev-code))
-  ;;                                 company-backends)))))
-  ;; :config (setq haskell-process-log t)
-  )
+  :bind (:map haskell-mode-map
+         ;; ("F8" . haskell-navigate-imports)
+         ;; ("C-c m i s" . haskell-sort-imports)
+         ;; ("C-c m i a" . haskell-align-imports)
+         ("C-c C-c" . haskell-compile)
+         ("C-c C-l" . haskell-process-load-file)
+         :map haskell-cabal-mode-map
+         ("C-c C-c" . haskell-compile)
+         ;; Recommended Haskell Mode bindings, see
+         ;; http://haskell.github.io/haskell-mode/manual/latest/Interactive-Haskell.html
+         )
+  :hook
+  (haskell-mode . tree-sitter-hl-mode)
+   ;;(
+   ;; (haskell-mode . interactive-haskell-mode)
+   ;; (haskell-mode . flycheck-mode)
+   ;; (haskell-mode . (lambda ()
+   ;;                   ;; completion support: in order to provide candidates for
+   ;;                   ;; identifiers defined locally in let and where blocks combine
+   ;;                   ;; completion candidates from completion-at-point function
+   ;;                   ;; (company-capf backend) and dynamic abbrevs
+   ;;                   (set (make-local-variable 'company-backends)
+   ;;                        (append '((company-capf company-dabbrev-code))
+   ;;                                company-backends)))))
+  :custom
+  (haskell-process-auto-import-loaded-modules t)
+  (haskell-process-suggest-remove-import-lines t)
+  (haskell-process-log t))
 
-(use-package dante
-  ;; development mode for Haskell
-  :ensure
-  :disabled
-  :after haskell-mode
-  :hook ((haskell-mode . dante-mode)
-         (haskell-mode . flycheck-mode)
-         (dante-mode . (lambda ()
-                         (flycheck-add-next-checker
-                          'haskell-dante
-                          '(warning . haskell-hlint))))))
-
-
-(use-package lsp-haskell
-  ;; Interacting with a Haskell language server such as
-  ;; haskell-language-server or ghcide using Microsoft's Language
-  ;; Server Protocol.
-  :ensure
-  :defer
-  :config
-  (setq lsp-haskell-server-path "ghcide")
-  (setq lsp-haskell-server-args '())
-  )
+;; (use-package lsp-haskell
+;;   ;; Interacting with a Haskell language server such as
+;;   ;; haskell-language-server or ghcide using Microsoft's Language
+;;   ;; Server Protocol.
+;;   :ensure
+;;   :disabled
+;;   :defer
+;;   :config
+;;   (setq lsp-haskell-server-path "ghcide")
+;;   (setq lsp-haskell-server-args '())
+;;   )
 
 ;;; ---------------------------------------------------------------------
 
@@ -1996,7 +2087,6 @@ See `sort-words'."
   ;; use emacs as an external editor for mail and news
   ;; https://github.com/zedinosaur/post-mode
   :load-path "cloned/post-mode/"
-
   :mode (
          ("mutt-[a-zA-Z0-9-.]+-[0-9]+-[0-9]+\\(-[a-fA-F0-9]+\\)?\\'" . post-mode)
          ( "mutt[a-zA-Z0-9._-]\\{6\\}\\'" . post-mode)
@@ -2004,7 +2094,6 @@ See `sort-words'."
          
          ( "\\.*mutt-*\\'" . post-mode)
          )
-
   :config
   (add-hook 'post-mode-hook (lambda ()
                               (auto-fill-mode t)
@@ -2037,7 +2126,6 @@ See `sort-words'."
 
 (use-package adwaita-dark-theme             :ensure :defer) ; dark
 (use-package alect-themes                   :ensure :defer) ; dark light
-;; (use-package anti-zenburn-theme             :ensure :defer) ;      light
 (use-package apropospriate-theme            :ensure :defer) ; dark light
 (use-package arc-dark-theme                 :load-path "cloned/arc-dark-theme" :defer) ; dark
 ;; (use-package avk-emacs-themes               :ensure :defer) ; dark light
@@ -2072,6 +2160,7 @@ See `sort-words'."
 ;; (use-package humanoid-themes                :ensure :defer) ; dark light
 ;; (use-package idea-darkula-theme             :ensure :defer) ; dark
 ;; (use-package intellij-theme                 :ensure :defer) ;      light
+(use-package iosevka-theme             :ensure :defer) ; only fonts
 ;; (use-package jbeans-theme                   :ensure :defer) ; dark
 ;; (use-package kaolin-themes                  :ensure :defer) ; dark light
 ;; (use-package kooten-theme                   :ensure :defer) ; dark
@@ -2086,7 +2175,7 @@ See `sort-words'."
 ;; (use-package mood-one-theme                 :ensure :defer) ; dark
 ;; (use-package naysayer-theme                 :ensure :defer) ; dark
 ;; (use-package nimbus-theme                   :ensure :defer) ; dark
-;; (use-package nord-theme                     :ensure :defer) ; dark
+(use-package nord-theme                     :ensure :defer) ; dark
 (use-package nordic-night-theme             :ensure :defer) ; dark
 ;; (use-package nubox                          :ensure :defer) ; dark light tty
 ;; (use-package one-themes                     :ensure :defer) ; dark light
@@ -2100,7 +2189,6 @@ See `sort-words'."
 ;; (use-package seoul256-theme                 :ensure :defer) ; dark light
 ;; (use-package silkworm-theme                 :ensure :defer) ;      light
 ;; (use-package snazzy-theme                   :ensure :defer) ; dark
-;; (use-package spacemacs-theme                :ensure :defer) ; dark
 ;; (use-package srcery-theme                   :ensure :defer) ; dark
 (use-package standard-themes                   :ensure :defer) ; dark light
 ;; (use-package sublime-themes                 :ensure :defer)
@@ -2114,7 +2202,6 @@ See `sort-words'."
 ;; (use-package vscdark-theme                  :ensure :defer) ; dark
 ;; (use-package vscode-dark-plus-theme         :ensure :defer) ; dark
 ;; (use-package yoshi-theme                    :ensure :defer) ; dark
-;; (use-package zenburn-theme                  :ensure :defer) ; dark
 ;; (use-package zeno-theme                     :ensure :defer) ; dark
 ;; (use-package zerodark-theme                 :ensure :defer) ; dark
 
@@ -2127,22 +2214,15 @@ See `sort-words'."
 ;;   (doom-themes-org-config) ; corrects (and improves) org-mode's native fontification
 ;;   )
 
-;; (use-package solarized-theme
-;;   :ensure
-;;   :defer
-;;   :custom
-;;   ((solarized-distinct-fringe-background t "make the fringe stand out from the background")
-;;    (solarized-high-contrast-mode-line t "make the modeline high contrast")  
-;;    (solarized-use-more-italic t "use more italics")
-;;    (x-underline-at-descent-line t "puts the underline below the font bottomline instead of the baseline")))
-
 (use-package modus-themes
   :ensure
 
   :init
   ;; Add all your customizations prior to loading the themes
   (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs t)
+        modus-themes-bold-constructs t
+        modus-themes-mixed-fonts t
+        )
 
   :config
   ;; Load the theme of your choice.
@@ -2418,12 +2498,12 @@ See `sort-words'."
 (use-package nix-mode
   :ensure
   :defer
-  :hook (nix-mode
-         . (lambda ()
-             (use-local-map nix-mode-map)
-             (modify-syntax-entry ?- "_") ; hiphen should be a symbol constituent
-             ;; (smartscan-mode 1) ; ????????
-             )))
+  :hook
+  (nix-mode . (lambda ()
+                (use-local-map nix-mode-map)
+                (modify-syntax-entry ?- "_") ; hiphen should be a symbol constituent
+                ;; (smartscan-mode 1) ; ????????
+                )))
 
 (use-package company-nixos-options
   :ensure
@@ -2449,7 +2529,24 @@ See `sort-words'."
 ;;;----------------------------------------------------------------------------
 ;;; tabs
 
-(tab-bar-mode 1)
+(use-package svg-tag-mode
+  ;; A minor mode for Emacs that replace keywords with nice SVG labels
+  :ensure nil
+  :disabled
+  :commands svg-tag-mode
+  :hook (prog-mode)
+  :config (setq svg-tag-tags '(("TODO" . ((lambda (tag) (svg-tag-make "TODO"))))))
+  )
+
+;;; tab-line-mode
+(use-package emacs
+  :config
+  ;; (setq tab-line-separator " ")  ;; set it to empty
+  (setq tab-line-separator (propertize "|" 'face  '(foreground-color . "cyan")))
+  (global-tab-line-mode t))
+
+
+;; (tab-bar-mode 1)
 ;; (setq tab-bar-show 1)                      ;; hide bar if <= 1 tabs open
 ;; (setq tab-bar-close-button-show nil)       ;; hide tab close / X button
 ;; (setq tab-bar-new-tab-choice "*dashboard*");; buffer to show in new tabs
@@ -2631,8 +2728,8 @@ See `sort-words'."
 
 (use-package matlab
   :ensure matlab-mode
-  :mode (("\\.m\\'" . matlab-mode)
-         ("\\.sci\\'" . matlab-mode))
+  :mode (("\\.m$" . matlab-mode)
+         ("\\.sci$" . matlab-mode))
   :commands (matlab-shell)
   :config
   (setq matlab-indent-function t)	; if you want function bodies indented
@@ -2694,14 +2791,16 @@ See `sort-words'."
 ;;; ---------------------------------------------------------------------------
 ;;; powerline
 
-;; https://github.com/milkypostman/powerline
-;; https://powerline.readthedocs.org/en/latest/installation.html
-
-;; (when (require 'powerline-themes nil 'noerror)
-;;   (powerline-default-theme)
-;;   ;; (powerline-center-theme)
-;;   ;; (power-line-nano-theme)
-;;   )
+(use-package powerline
+  ;; https://github.com/milkypostman/powerline
+  ;; https://powerline.readthedocs.org/en/latest/installation.html
+  :ensure nil
+  :disabled
+  :config
+  (powerline-default-theme)
+  ;; (powerline-center-theme)
+  ;; (power-line-nano-theme)
+  )
 
 ;; (require 'main-line nil 'noerror)
 
@@ -2747,6 +2846,10 @@ See `sort-words'."
   )
 
 ;;;----------------------------------------------------------------------------
+
+(use-package reverso
+  :ensure
+  :defer)
 
 (use-package org
   ;; keeping notes, maintaining TODO lists, planning projects, and authoring documents
@@ -2814,17 +2917,17 @@ See `sort-words'."
 
 (use-package pandoc-mode
   :ensure
-  :defer
-  :config
-  (add-hook 'markdown-mode-hook #'pandoc-mode))
+  :hook (markdown-mode . pandoc-mode))
 
 (use-package markdown-mode
   :ensure
+  :commands (markdown-mode gfm-mode)
   :mode ("\\.md\\'" . gfm-mode)
   :custom
   (markdown-command "pandoc -t html5 --pdf-engine=weasyprint")
   (markdown-fontify-code-blocks-natively t)
-  ;; :hook (markdown-mode . turn-on-orgtbl)
+  ;; :hook
+  ;; (markdown-mode . turn-on-orgtbl)
   :config
   (advice-add 'markdown-preview :around
               (lambda (orig &rest args)
@@ -2886,6 +2989,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 (use-package asy-mode
   ;; mode for editing Asymptote source code
+  :if (file-readable-p "/usr/share/asymptote")
   :load-path "/usr/share/asymptote"
   :mode ("\\.asy$" . asy-mode))
 
@@ -2894,6 +2998,8 @@ XLFD defaults to the selected frame's font, or the default face's font."
 (use-package which-key
   ;; display available keybindings in popup
   :ensure
+  :init
+  (setq which-key-idle-delay 0.5) ; Open after .5s instead of 1s
   :config
   (which-key-setup-side-window-right-bottom)
   (which-key-mode))
@@ -2911,8 +3017,22 @@ XLFD defaults to the selected frame's font, or the default face's font."
   (neo-cwd-line-style 'button) ; 'text, 'button
   (neo-show-hidden-files t)
   (neo-smart-open t)
-  (neo-theme (if (display-graphic-p) 'icons 'arrow)) ; 'classic, 'nerd, 'ascii, 'arrow, 'icons
+  (neo-theme (if (display-graphic-p) 'icons 'arrow))
+                                        ; 'classic, 'nerd, 'ascii, 'arrow, 'icons
+                                        ; 'icons requires all-the-icons
+  (neo-window-fixed-size nil)
+  ;; (neo-window-width 50)
   )
+
+(use-package all-the-icons
+  :ensure
+  :defer)
+
+(use-package all-the-icons-nerd-fonts
+  :ensure
+  :after all-the-icons
+  :config
+  (all-the-icons-nerd-fonts-prefer))
 
 (use-package popwin ; Popup Window Manager
   :ensure
@@ -2997,6 +3117,10 @@ XLFD defaults to the selected frame's font, or the default face's font."
 
 ;;;----------------------------------------------------------------------------
 
+(use-package json-mode
+  :ensure
+  :defer)
+
 (use-package jsonnet-mode
   :ensure
   :defer)
@@ -3043,6 +3167,10 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :defer
   :mode ("/debian/control\\'" . debian-control-mode))
 
+(use-package pacdiff
+  :ensure
+  :defer)
+
 (use-package mode-icons
   ;; Show icons instead of mode names
   :ensure
@@ -3076,16 +3204,41 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :ensure
   :hook (dired-mode . diredfl-mode))
 
+(use-package dired-subtree
+  ;; Insert subdirectories in a tree-like fashion
+  :ensure
+  :after dired
+  ;; :custom
+  ;; (dired-subtree-cycle-depth 3) ; default: 3
+  ;; (dired-subtree-use-backgrounds t) ; default: t
+  :custom-face
+  (dired-subtree-depth-1-face ((t (:background "gainsboro"))))
+  (dired-subtree-depth-2-face ((t (:background "wheat"))))
+  (dired-subtree-depth-3-face ((t (:background "light steel blue"))))
+  (dired-subtree-depth-4-face ((t (:background "gray95"))))
+  (dired-subtree-depth-5-face ((t (:background "gray90"))))
+  (dired-subtree-depth-6-face ((t (:background "gray85"))))
+  :bind (:map dired-mode-map
+              ("<tab>" . dired-subtree-toggle)
+              ("<C-tab>" . dired-subtree-cycle)
+              ("<S-iso-lefttab>" . dired-subtree-remove)))
+
 (use-package dired-du
   ;; display the recursive size of directories in dired
   :ensure
   ;; :hook (dired-mode . dired-du-mode)
   :after dired)
 
+(use-package dired-hist
+  ;; Traverse Dired buffer's history: back, forward
+  :ensure
+  :after dired)
+
 
 ;; dired
 ;; C-x C-q		dired-toggle-read-only
 ;; C-c C-c		wdired-finish-edit
+;; 0 w                  dired-copy-filename-as-kill
 
 
 (use-package string-inflection
@@ -3151,26 +3304,29 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :init
   (setq fontaine-presets
         '((small
-           :default-family "Iosevka Comfy Wide"
-           :default-height 140
-           :variable-pitch-family "Iosevka Comfy Wide Motion Duo")
+           :default-weight regular
+           :bold-weight semibold
+           :default-height 100)
           (regular
-           :default-height 160)
+           :default-weight regular
+           :bold-weight bold
+           :default-height 120)
           (medium
-           :default-weight semilight
-           :default-height 180
-           :bold-weight extrabold)
+           :default-weight medium
+           :bold-weight bold
+           :default-height 140)
           (large
-           :inherit medium
-           :default-height 200)
+           :default-weight medium
+           :bold-weight bold
+           :default-height 160)
           (presentation
-           :inherit medium
-           :default-weight light
-           :default-height 250)
+           :default-weight semibold
+           :bold-weight extrabold
+           :default-height 200)
           (jumbo
-           :inherit medium
-           :default-weight light
-           :default-height 300)
+           :default-weight semibold
+           :bold-weight extrabold
+           :default-height 250)
           (t
            :default-family "Iosevka Comfy"
            ;; :default-family "Iosevka Fixed"
@@ -3184,15 +3340,12 @@ XLFD defaults to the selected frame's font, or the default face's font."
            )
           ))
   :config
-  ;; Set last preset or fall back to desired style
+  ;; Set last preset or fall back to desired style from presets
   (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
-  :hook
-  ;; The other side of `fontaine-restore-latest-preset'.
-  (kill-emacs . fontaine-store-latest-preset)
+  ;; Persist latest font preset when closing/starting Emacs and while switching between themes
+  (fontaine-mode 1)
   :bind
-  (("C-c f" . fontaine-set-preset)
-   ("C-c F" . fontaine-set-face-font))
-  )
+  (("C-c f" . fontaine-set-preset)))
 
 (use-package file-info
   ;; Quick view and copy all necessary information about current opened file
@@ -3210,7 +3363,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
   :ensure
   :defer
   :config
-  (dolist (word '("da" "das" "de" "do" "dos"))
+  (dolist (word '("\\bda\\b" "\\bdas\\b" "\\bde\\b" "\\bdo\\b" "\\bdos\\b"))
     (add-to-list 'titlecase-skip-words-regexps word)))
 
 ;;;----------------------------------------------------------------------------
@@ -3242,8 +3395,7 @@ XLFD defaults to the selected frame's font, or the default face's font."
 ;;----------------------------------------------------------------------------
 ;; Variables configured via the interactive 'customize' interface
 ;;----------------------------------------------------------------------------
-
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(setq custom-file (locate-user-emacs-file "custom.el"))
 
 (when (file-exists-p custom-file)
   (load custom-file))
